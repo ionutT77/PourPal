@@ -1,0 +1,55 @@
+PourPal - Specification Draft
+
+Team of 2 - Specification Draft
+Team Members: Toma Ionut-Adrian, Shehab Abedalrahman
+
+General Description:
+This web application aims to solve the problem of making platonic friends as an adult (18+). It helps users connect by allowing them to create and join casual, group-based social events (called "Hangouts") at local venues like bars, pubs, and coffee shops.
+
+Registration (for User):
+A new user needs to register for a single "User" account. Registration requires an unique email address, a password, their first name, and a mandatory confirmation that they are 18 years of age or older.
+
+Logged-in User: Profile & Hangout Creation:
+A logged-in user can manage their basic profile. A profile should contain their first name,profile picture, and a short bio (e.g., "My Vibe").
+
+A logged-in user can create a new "Hangout." A Hangout must contain a Title, a Venue/Location (e.g., via a location search API), a Date & Time, a maximum Group Size (e.g., 2-5 people), and a brief description. The user who creates the Hangout is automatically added as the first participant. Also we might have a separate place where you can find listed different bars in the area, from which you can get discounts or offers by showing them that you came through this web app.
+
+Logged-in User: Browsing & Joining Hangouts:
+A logged-in user can see a list of all upcoming Hangouts. This list should be filterable by criteria like "Soonest" and "Nearest."
+
+A logged-in user can click on any Hangout to see its full details, including the description and the profiles of users who have already joined.
+
+From the details page, a user can join a Hangout (if it is not full) by clicking "Count Me In!". A user can also leave a Hangout they previously joined.
+
+Once a user joins a Hangout, they gain access to a temporary, group-only chat for that specific event. This is for coordination (e.g., "See you at 7!", "I'm running 5 mins late").
+
+A logged-in user can also see a list of "My Hangouts" (events they have joined or created), separated into "Upcoming" and "Past."
+
+Also you can have the option to add someone as your connection/friend .
+
+After the Hangout ,you can give everyone a comment on their profile.
+
+There is probably going to be a report button (for shady accounts).
+
+There will be a Policy Privacy.
+
+Also since is an 18+ web app, we will have an age verification system(probably not 100% implemented , just the functionality).
+
+These are the main ideas of PourPal functionalities. Might add more in the process. :)
+
+
+Technical Approach:
+Frontend (React.js):
+The frontend will be a single-page application (SPA) built using React.js. It will be responsible for all UI rendering and user-facing state management.
+- React Router will be used for navigation (e.g., /login, /hangouts, /hangouts/123).
+- The `axios` library (or native `fetch`) will be used to make API calls to the Django backend.
+- All user-facing components (forms, lists, chat windows, profile pages) will be built in React.
+- Node.js will be used as the development environment for managing packages (npm) and running the local development server.
+
+Backend (Django):
+The backend will be a Python-based REST API built using the Django REST Framework (DRF). It will be responsible for all business logic, user authentication, and database operations.
+- Django will handle user registration and authentication (likely using httpOnly cookies for secure session management).
+- It will provide all CRUD (Create, Read, Update, Delete) API endpoints for Hangouts, User Profiles, and Chat Messages.
+- The real-time chat functionality will be implemented (e.g., using Django Channels).
+- The built-in Django Admin panel will be used by the team for moderation (handling reports, banning users).
+- The database will be PostgreSQL, as it integrates seamlessly with Django.

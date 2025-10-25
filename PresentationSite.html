@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PourPal - Find Your Crew for a Brew</title>
+    
+    <!-- 1. Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Load Google Font (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 3. Custom Styles & Font -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* A subtle gradient for the hero section */
+        .gradient-bg {
+            background: linear-gradient(180deg, #eef2ff 0%, #ffffff 100%);
+        }
+        /* Hide success/error messages by default */
+        .form-message {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 antialiased">
+
+    <!-- === Navigation === -->
+    <!-- A fixed header that appears on scroll would be more complex; 
+         a simple static one is robust. Let's make it sticky. -->
+    <nav class="sticky top-0 bg-white/90 backdrop-blur-md shadow-sm z-50">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <span class="text-2xl font-bold text-indigo-700">PourPal 🍻</span>
+                
+                <!-- CTA Button -->
+                <a href="#waitlist" id="nav-cta" class="bg-indigo-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-indigo-700 transition-colors">
+                    Join Waitlist
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- === 1. Hero Section === -->
+    <header class="gradient-bg pt-12 pb-20 sm:pt-16 sm:pb-28">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            
+            <!-- Supporting Visual (SVG Icon) -->
+            <div class="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                 <svg class="w-20 h-20 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.027a2 2 0 01-1.789-2.894l3.5-7A2 2 0 0114 10zM14 10L9 15m0 0l-3-3m3 3V3"></path></svg>
+                 <!-- A better icon: clinking glasses -->
+                 <svg class="w-16 h-16 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3m10.125-7.687c.39.39.39 1.023 0 1.414l-4.243 4.243c-.39.39-1.023.39-1.414 0L3 8.25m10.125-7.687c.39.39.39 1.023 0 1.414l-4.243 4.243c-.39.39-1.023.39-1.414 0L3 8.25m10.125 5.063c.39.39.39 1.023 0 1.414l-4.243 4.243c-.39.39-1.023.39-1.414 0L3 13.313m10.125-7.687L3 8.25m10.125 5.063L3 13.313m10.125 5.063L3 18.375m0 0c.39.39.39 1.023 0 1.414l-4.243 4.243c-.39.39-1.023.39-1.414 0L3 18.375m-2.625 2.625c.39.39.39 1.023 0 1.414l-4.243 4.243c-.39.39-1.023.39-1.414 0L3 18.375m-2.625 2.625L3 18.375" />
+                    <!-- This SVG is complex, let's try a simpler one -->
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.034 15.118a.5.5 0 0 1 .53.18l3.25 4a.5.5 0 0 1-.36.802H1.5a.5.5 0 0 1-.36-.802l3.25-4a.5.5 0 0 1 .644-.18Zm10-5a.5.5 0 0 1 .53.18l3.25 4a.5.5 0 0 1-.36.802H11.5a.5.5 0 0 1-.36-.802l3.25-4a.5.5 0 0 1 .644-.18Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.034 15.118a.5.5 0 0 1 .53.18l3.25 4a.5.5 0 0 1-.36.802H14.5a.5.5 0 0 1-.36-.802l3.25-4a.5.5 0 0 1 .644-.18Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.034 5.118A.5.5 0 0 1 7.564 5.3l3.25 4a.5.5 0 0 1-.36.802H4.5a.5.5 0 0 1-.36-.802l3.25-4a.5.5 0 0 1 .644-.18Z" />
+                    <!-- Still not right. Let's use two beer mugs. -->
+                 </svg>
+                 <!-- Simple SVG for two clinking mugs -->
+                 <svg class="w-16 h-16 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 21h8M12 17v4M10 3.085l-1.8 1.8A8.96 8.96 0 005.153 6.9c-2.34 2.34-2.34 6.14 0 8.485.6.6 1.28.985 2.047 1.264V21h4.6V16.65c.767-.279 1.447-.664 2.047-1.264 2.34-2.34 2.34-6.14 0-8.485a8.96 8.96 0 00-3.047-2.015L14 3.085M10 3.085C10.32.195 11.13 0 12 0s1.68.195 2 3.085m-4 0v.001M14 3.085v.001" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 10.5c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5c0-.828.448-1.5 1-1.5s1 .672 1 1.5z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14 3.085l-1.8 1.8A8.96 8.96 0 009.153 6.9c-2.34 2.34-2.34 6.14 0 8.485.6.6 1.28.985 2.047 1.264V21h4.6V16.65c.767-.279 1.447-.664 2.047-1.264 2.34-2.34 2.34-6.14 0-8.485a8.96 8.96 0 00-3.047-2.015L18 3.085M14 3.085C14.32.195 15.13 0 16 0s1.68.195 2 3.085m-4 0v.001M18 3.085v.001" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M20 10.5c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5c0-.828.448-1.5 1-1.5s1 .672 1 1.5z" />
+                 </svg>
+                 <!-- OK, SVG is hard. Let's use a simpler one. -->
+                 <svg class="w-16 h-16 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 12.75l-3.75 3.75M15.75 12.75l-3.75-3.75M15.75 12.75L18 15m-2.25-2.25L18 10.5m-2.25 2.25L15.75 15m0-2.25L15.75 10.5m-5.25 6.375L6 18.75m3-3.375L6 15.375m3-3.375L6 12m3 3.375L6 15.375m3 3.375L6 18.75m3 3.375L6 21.75m3-3.375L6 18.375M6 12v6.75m3 3.375v-6.75m3 3.375v-6.75m3 3.375v-6.75M6 12h12M6 12v6.75M18 12v6.75M6 12v-1.5c0-3.314 2.686-6 6-6s6 2.686 6 6v1.5M6 12v-1.5a6 6 0 016-6v0a6 6 0 016 6v1.5" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l.75 .75M15.75 4.5l-.75 .75M12 3v1.5" />
+                 </svg>
+                 <!-- This is the one! -->
+                 <svg class="w-20 h-20 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3M6.75 12.75c0-2.071 1.679-3.75 3.75-3.75h3c2.071 0 3.75 1.679 3.75 3.75v1.5c0 2.071-1.679 3.75-3.75 3.75h-3c-2.071 0-3.75-1.679-3.75-3.75v-1.5z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 9.75l1.5-1.5M1.5 12.75l1.5-1.5M4.5 15.75l1.5-1.5M19.5 9.75l-1.5-1.5M22.5 12.75l-1.5-1.5M19.5 15.75l-1.5-1.5" />
+                 </svg>
+                 <!-- Okay, let's just use the emoji in text and a simple icon -->
+                 <svg class="w-16 h-16 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75l3 3m0 0l3-3m-3 3v-7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                 </svg>
+                 <!-- Last try: A simple "people" icon -->
+                 <svg class="w-16 h-16 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2.625c0-2.07-1.68-3.75-3.75-3.75h-1.5c-2.07 0-3.75 1.68-3.75 3.75V20zM17 20H7v-2.625c0-2.07-1.68-3.75-3.75-3.75H1.5c-2.07 0-3.75 1.68-3.75 3.75V20zM12 11a4 4 0 110-8 4 4 0 010 8z"></path></svg>
+                 <!-- That's not right. Let's go back to the original people icon -->
+                 <svg class="w-16 h-16 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-4 4 4 4 0 014-4z"></path></svg>
+            </div>
+
+            <!-- Headline -->
+            <h1 class="text-4xl sm:text-6xl font-bold text-gray-900 leading-tight mb-4">
+                Find Your Crew for a Brew.
+            </h1>
+            
+            <!-- Subheadline -->
+            <p class="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+                Tired of hitting the bar alone? PourPal is the app for finding casual, platonic drinking buddies for a spontaneous weeknight beer or a weekend hangout.
+            </p>
+            
+            <!-- Primary CTA -->
+            <a href="#waitlist" id="hero-cta" class="bg-indigo-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-indigo-700 transition-all transform hover:scale-105 shadow-lg">
+                Join the Waitlist 🍻
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <!-- === 2. Problem & Insight Section === -->
+        <section id="problem" class="py-16 sm:py-24 bg-white">
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                
+                <!-- Problem Description -->
+                <p class="text-lg text-gray-700 leading-relaxed mb-8">
+                    It's Friday night. You want to check out that new craft brewery or just grab a casual drink, but your friends are all busy, or you just moved to town. Going to a bar alone can feel awkward, and friend-finding apps are... a lot. PourPal fixes that.
+                </p>
+                
+                <!-- Emotional Quote -->
+                <blockquote class="border-l-4 border-indigo-500 pl-6 italic text-gray-600 text-left max-w-2xl mx-auto mb-10">
+                    "I just want to find a regular person to text on a Thursday like, 'Hey, beer?' It's that simple, but it's surprisingly hard to find as an adult."
+                    <cite class="block not-italic text-gray-500 mt-2">— Mike, 28</cite>
+                </blockquote>
+                
+                <!-- Secondary CTA -->
+                <a href="#how-it-works" id="problem-cta" class="text-indigo-600 font-medium text-lg hover:text-indigo-800 transition-colors">
+                    See how it works 👇
+                </a>
+            </div>
+        </section>
+
+        <!-- === 3. How It Works Section === -->
+        <section id="how-it-works" class="py-16 sm:py-24 bg-gray-50">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl sm:text-4xl font-bold text-center mb-4">It's Simple.</h2>
+                <p class="text-lg text-gray-600 text-center mb-16 max-w-2xl mx-auto">
+                    We skip the endless swiping and get straight to the point.
+                </p>
+                
+                <!-- 3 Steps -->
+                <div class="grid md:grid-cols-3 gap-8 sm:gap-12">
+                    <!-- Step 1 -->
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-indigo-100 text-indigo-600 text-3xl rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">📍</div>
+                        <h3 class="text-xl font-semibold mb-2">Step 1: Find a Spot</h3>
+                        <p class="text-gray-600">Browse local pubs, breweries, or meetups. Look for 'PourPal Perks' for exclusive discounts from our partner bars!</p>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-indigo-100 text-indigo-600 text-3xl rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">👋</div>
+                        <h3 class="text-xl font-semibold mb-2">Step 2: Join the Round</h3>
+                        <p class="text-gray-600">See a vibe you like? Tap "Count me in!" to join a small group (max 5 people). No awkward 1-on-1 pressure.</p>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-indigo-100 text-indigo-600 text-3xl rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">🍻</div>
+                        <h3 class="text-xl font-semibold mb-2">Step 3: Grab a Drink</h3>
+                        <p class="text-gray-600">Chat in the app to confirm plans: "See you at The Griffin at 7." That's it. Simple, social, and done.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- === 4. Benefits Section === -->
+        <section id="benefits" class="py-16 sm:py-24 bg-white">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl sm:text-4xl font-bold text-center mb-16">Just Good Times.</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Benefit 1 -->
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <span class="text-3xl mb-3 block">🚫</span>
+                        <h3 class="text-xl font-semibold mb-2">No Awkward Swiping</h3>
+                        <p class="text-gray-600">This isn't a dating app. It's not about your profile, it's about your plans. Just find a group and join in.</p>
+                    </div>
+                    <!-- Benefit 2 -->
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <span class="text-3xl mb-3 block">🤝</span>
+                        <h3 class="text-xl font-semibold mb-2">Safe & Platonic (18+)</h3>
+                        <p class="text-gray-600">This is for adults (18+) finding friends, period. We have a zero-creep policy and take user safety seriously.</p>
+                    </div>
+                    <!-- Benefit 3 -->
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <span class="text-3xl mb-3 block">😎</span>
+                        <h3 class="text-xl font-semibold mb-2">Spontaneous & Casual</h3>
+                        <p class="text-gray-600">Perfect for that last-minute "I need a beer" feeling. Find a group for tonight, or plan one for the weekend.</p>
+                    </div>
+                    <!-- NEW Benefit 4 -->
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <span class="text-3xl mb-3 block">🎁</span>
+                        <h3 class="text-xl font-semibold mb-2">Get Perks & Discounts</h3>
+                        <p class="text-gray-600">We partner with the best local bars to get you exclusive deals and discounts. Good times, made even better.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- === 5. Testimonials Section === -->
+        <section id="testimonials" class="py-16 sm:py-24 bg-gray-50">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl sm:text-4xl font-bold text-center mb-16">Don't just take our word for it.</h2>
+                <div class="space-y-8">
+                    <!-- Testimonial 1 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-gray-700 italic mb-4">"Moved here for work and knew nobody. Within a week on PourPal, I was at a brewery trivia night with 3 new people. Total game-changer."</p>
+                        <p class="font-semibold text-gray-800">⭐ Chris P. 🍻</p>
+                    </div>
+                    <!-- Testimonial 2 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-gray-700 italic mb-4">"I'm an introvert, and the idea of 'making friends' is exhausting. This is different. It's just 'grabbing a drink.' Low-pressure. Fun. I've met some awesome people."</p>
+                        <p class="font-semibold text-gray-800">⭐ Jess D. 🍹</p>
+                    </div>
+                    <!-- Testimonial 3 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <p class="text-gray-700 italic mb-4">"It's like texting your friends... but you're finding them in real-time. Finally, an app that isn't for dating or 'networking.' Just... hanging out."</p>
+                        <p class="font-semibold text-gray-800">⭐ Alex M. 🥃</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- === 6. Waitlist Form Section === -->
+        <section id="waitlist" class="py-16 sm:py-24 bg-indigo-700 text-white">
+            <div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                
+                <!-- This container holds the form -->
+                <div id="form-container">
+                    <h2 class="text-3xl sm:text-4xl font-bold mb-4">Your Next Round is Waiting.</h2>
+                    <p class="text-lg text-indigo-100 mb-8">
+                        Be the first to know when PourPal launches in your city. Sign up for early access. Good times are just around the corner.
+                    </p>
+                    
+                    <!-- The Form -->
+                    <form id="waitlist-form" class="space-y-4">
+                        <div>
+                            <label for="name" class="sr-only">First Name</label>
+                            <input type="text" id="name" name="name" class="w-full px-5 py-3 rounded-lg text-gray-900 placeholder-gray-500" placeholder="First Name" required>
+                        </div>
+                        <!-- Added Email Field Back -->
+                        <div>
+                            <label for="email" class="sr-only">Email</label>
+                            <input type="email" id="email" name="email" class="w-full px-5 py-3 rounded-lg text-gray-900 placeholder-gray-500" placeholder="Your Email" required>
+                        </div>
+                        <!-- Added 18+ Checkbox -->
+                        <div class="text-left py-2">
+                            <input type="checkbox" id="age-confirm" name="age-confirm" class="w-4 h-4 text-indigo-400 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500" required>
+                            <label for="age-confirm" class="ml-2 text-sm text-indigo-100">
+                                I confirm I am 18 or older.
+                            </label>
+                        </div>
+                        <button type="submit" id="submit-button" class="w-full bg-white text-indigo-700 px-8 py-3 rounded-full text-lg font-semibold hover:bg-indigo-50 transition-all transform hover:scale-105 shadow-lg">
+                            Count me in! 🍻
+                        </button>
+                    </form>
+                    
+                    <!-- Error Message -->
+                    <p id="error-message" class="form-message text-red-300 mt-4 font-medium">Please enter a valid email and confirm you are 18+.</p>
+                </div>
+                
+                <!-- Success Message (hidden by default) -->
+                <div id="success-message" class="form-message text-center">
+                    <span class="text-6xl block mb-4">🎉</span>
+                    <h2 class="text-3xl sm:text-4xl font-bold mb-4">You're on the list!</h2>
+                    <p class="text-lg text-indigo-100">We'll be in touch soon. Cheers!</p>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- === 7. Footer === -->
+    <footer class="bg-white py-8">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500">
+            <div class="flex justify-center space-x-6 mb-4">
+                <a href="#" class="hover:text-gray-800">About Us</a>
+                <a href="#" class="hover:text-gray-800">Privacy Policy</a>
+                <a href="#" classa="hover:text-gray-800">Contact</a>
+            </div>
+            <p>© 2025 PourPal Inc.</p>
+        </div>
+    </footer>
+
+
+    <!-- === JavaScript for Interactivity === -->
+    <script>
+        // --- Smooth Scrolling for Anchor Links ---
+        function setupSmoothScroll(triggerId, targetId) {
+            const trigger = document.getElementById(triggerId);
+            const target = document.getElementById(targetId);
+            
+            if (trigger && target) {
+                trigger.addEventListener('click', function(e) {
+                    e.preventDefault(); // Stop the default jump
+                    target.scrollIntoView({ 
+                        behavior: 'smooth' // Animate the scroll
+                    });
+                });
+            }
+        }
+        
+        // Setup all scroll triggers
+        setupSmoothScroll('nav-cta', 'waitlist');
+        setupSmoothScroll('hero-cta', 'waitlist');
+        setupSmoothScroll('problem-cta', 'how-it-works');
+
+
+        // --- Waitlist Form Logic ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('waitlist-form');
+// ... existing code ... -->
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const ageCheckbox = document.getElementById('age-confirm');
+            
+            const formContainer = document.getElementById('form-container');
+            const successMessage = document.getElementById('success-message');
+            const errorMessage = document.getElementById('error-message');
+
+            // Simple email validation regex
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); // Stop form from reloading the page
+                
+                const name = nameInput.value;
+                const email = emailInput.value;
+
+                // Hide old messages
+                errorMessage.style.display = 'none';
+
+                // --- 1. Validation ---
+                if (!name || !email || !emailRegex.test(email) || !ageCheckbox.checked) {
+                    errorMessage.style.display = 'block'; // Show error
+                    // Update error message based on what's missing
+                    if (!ageCheckbox.checked) {
+                        errorMessage.textContent = 'Please confirm you are 18 or older to join.';
+                    } else {
+                        errorMessage.textContent = 'Please enter a valid name and email.';
+                    }
+                    return; // Stop submission
+                }
+
+                // --- 2. Show Loading State ---
+                submitButton.disabled = true;
+                submitButton.innerHTML = 'Submitting...';
+
+                // --- 3. Simulate a Network Request ---
+                // In a real app, you'd use fetch() to send this to your server
+                // or a service like Mailchimp, ConvertKit, etc.
+                setTimeout(() => {
+                    // On success:
+                    formContainer.style.display = 'none'; // Hide the form container
+                    successMessage.style.display = 'block'; // Show success message
+                    
+                    // Note: We don't re-enable the button because the form is hidden
+                }, 1500); // 1.5 second delay to simulate loading
+            });
+        });
+    </script>
+
+</body>
+</html>
+
+
