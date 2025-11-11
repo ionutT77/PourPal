@@ -1,104 +1,70 @@
-# 🍻 PourPal
+# PourPal Frontend Documentation
 
-**PourPal** is a social web application designed to help adults (18+) make platonic friends through local, casual group events called **Hangouts**.  
-Whether you're looking to meet new people at a bar, pub, or coffee shop — PourPal connects users in a fun, friendly, and safe way.
+## Overview
+PourPal is a web application designed to help adults (18+) connect and make platonic friends through casual, group-based social events called "Hangouts." This frontend documentation provides an overview of the structure, components, and setup instructions for the React application.
 
----
+## Project Structure
+The frontend of the PourPal project is organized as follows:
 
-## 👥 Team
-- **Toma Ionut-Adrian**  
-- **Shehab Abedalrahman**
+```
+frontend/
+├── public/
+│   └── index.html          # Main HTML file for the React application
+├── src/
+│   ├── components/         # Contains all React components
+│   │   ├── Auth/           # Authentication components
+│   │   │   ├── Login.jsx   # Login form component
+│   │   │   └── Register.jsx # Registration form component
+│   │   ├── Hangouts/       # Hangout-related components
+│   │   │   ├── HangoutList.jsx      # List of upcoming Hangouts
+│   │   │   ├── HangoutDetails.jsx   # Details of a specific Hangout
+│   │   │   └── CreateHangout.jsx    # Form to create a new Hangout
+│   │   ├── Profile/        # User profile component
+│   │   │   └── UserProfile.jsx       # View and edit user profile
+│   │   └── Chat/          # Chat functionality component
+│   │       └── GroupChat.jsx          # Real-time chat for Hangouts
+│   ├── services/           # API service functions
+│   │   └── api.js         # Functions for making API calls
+│   ├── App.jsx             # Main application component
+│   └── index.js           # Entry point for the React application
+├── package.json            # Project metadata and dependencies
+└── README.md               # Frontend documentation
+```
 
----
+## Setup Instructions
 
-## 🧩 General Description
-PourPal helps users connect by creating and joining casual group-based social events at local venues.  
-Users can easily browse upcoming Hangouts, join events that match their vibe, and chat with participants before meeting up in person.
+### Prerequisites
+- Node.js (version 14 or higher)
+- npm (Node Package Manager)
 
----
+### Installation
+1. **Clone the repository**:
+   ```
+   git clone <repository-url>
+   cd PourPal/frontend
+   ```
 
-## 🔐 Registration
-- New users register for a **single "User" account**.  
-- Registration requires:
-  - Unique email address  
-  - Password  
-  - First name  
-  - Confirmation that the user is **18 years or older**
+2. **Install dependencies**:
+   ```
+   npm install
+   ```
 
----
+### Running the Application
+To start the development server, run:
+```
+npm start
+```
+This will launch the application in your default web browser at `http://localhost:3000`.
 
-## 👤 Profile & Hangout Creation
-After logging in, users can:
-- Manage their **profile** (first name, profile picture, and short bio like “My Vibe”).  
-- **Create Hangouts** with:
-  - Title  
-  - Venue/Location (via a location search API)  
-  - Date & Time  
-  - Maximum group size (e.g., 2–5 people)  
-  - Description  
+### Building for Production
+To create a production build of the application, run:
+```
+npm run build
+```
+This will generate an optimized build in the `build` directory.
 
-The creator is automatically added as the first participant.
+## Contributing
+Contributions are welcome! Please follow the standard Git workflow for submitting issues and pull requests.
 
-💡 There may also be a section that lists local bars partnered with PourPal, offering discounts for users who come through the app.
-
----
-
-## 🎉 Browsing & Joining Hangouts
-Logged-in users can:
-- View **all upcoming Hangouts**, filterable by:
-  - **Soonest**
-  - **Nearest**
-- View full Hangout details (description + list of participants)
-- **Join** or **leave** a Hangout (if not full)
-- Access a **temporary group-only chat** for coordination  
-  (e.g., “See you at 7!”, “Running 5 mins late”)
-- View a list of **My Hangouts** (separated into *Upcoming* and *Past*)
-- **Add other users as friends/connections**
-- **Comment** on participants’ profiles after events
-
-Additional features:
-- **Report button** for suspicious accounts  
-- **Privacy Policy** for data safety  
-- **Age verification system** (functional prototype planned)
-
----
-
-## 🛠️ Technical Approach
-
-### Frontend (React.js)
-The frontend will be built as a **Single-Page Application (SPA)** using React.js.
-
-**Key Technologies:**
-- **React Router** for navigation (`/login`, `/hangouts`, `/hangouts/123`)
-- **Axios / Fetch API** for backend communication
-- **Reusable React components** for forms, lists, chat, and profiles
-- **Node.js** environment for development and dependency management
-
----
-
-### Backend (Django)
-The backend will use the **Django REST Framework (DRF)** to provide robust API endpoints and handle application logic.
-
-**Key Technologies:**
-- **Django** for user authentication and registration (using httpOnly cookies)
-- **CRUD API endpoints** for Hangouts, Profiles, and Chat
-- **Real-time chat** with **Django Channels**
-- **Admin panel** for moderation (reports, banning users)
-- **PostgreSQL** as the main database
-
----
-
-## 🚀 Future Improvements
-- Implement complete **age verification system**
-- Add **venue discovery** and **discount partnership** functionality
-- Improve **user reputation and feedback system**
-
----
-
-## 📄 License
-This project is developed for educational purposes at the **Faculty of Automation and Computers**.
-
----
-
-## 💬 Contact
-If you have suggestions or want to contribute, feel free to open an issue or submit a pull request!
+## License
+This project is licensed under the MIT License. See the LICENSE file for details.

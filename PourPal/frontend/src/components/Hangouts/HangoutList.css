@@ -1,0 +1,113 @@
+.hangouts-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px;
+}
+
+.hangouts-header {
+    margin-bottom: 32px;
+}
+
+.hangouts-header h1 {
+    color: #2d3748;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.hangouts-header p {
+    color: #718096;
+    font-size: 16px;
+}
+
+.hangouts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.hangout-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.hangout-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    border-color: #667eea;
+}
+
+.hangout-card h3 {
+    color: #2d3748;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.hangout-card p {
+    color: #4a5568;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.hangout-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.hangout-info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #718096;
+    font-size: 14px;
+}
+
+.hangout-info-item strong {
+    color: #4a5568;
+}
+
+.no-hangouts {
+    text-align: center;
+    padding: 60px 20px;
+    color: #718096;
+}
+
+.no-hangouts h2 {
+    font-size: 24px;
+    color: #4a5568;
+    margin-bottom: 12px;
+}
+
+.error-message {
+    background-color: #fee;
+    color: #c53030;
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 4px solid #e53e3e;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+    .hangouts-container {
+        padding: 24px 16px;
+    }
+
+    .hangouts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hangouts-header h1 {
+        font-size: 24px;
+    }
+}
