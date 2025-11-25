@@ -84,6 +84,14 @@
     color: #a0aec0;
 }
 
+/* Form Hint Text */
+.form-hint {
+    color: #718096;
+    font-size: 12px;
+    margin-top: -4px;
+    font-style: italic;
+}
+
 /* Checkbox Group */
 .checkbox-group {
     display: flex;

@@ -1,21 +1,22 @@
 import React from 'react';
 import { Link, useHistory } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { logoutUser } from '../../services/api';
 import './Navbar.css';
 
 const Navbar = () => {
     const history = useHistory();
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const { user, logout } = useAuth();
 
     const handleLogout = async () => {
         try {
             await logoutUser();
-            localStorage.removeItem('user');
+            logout();
             history.push('/login');
         } catch (error) {
             console.error('Logout failed:', error);
-            // Still remove user from localStorage and redirect
-            localStorage.removeItem('user');
+            // Still logout and redirect
+            logout();
             history.push('/login');
         }
     };

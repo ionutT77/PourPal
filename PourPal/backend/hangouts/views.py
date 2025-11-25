@@ -2,10 +2,13 @@ from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from .models import Hangout
 from .serializers import HangoutSerializer, HangoutCreateSerializer
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class HangoutListCreateView(generics.ListCreateAPIView):
     """API endpoint for listing and creating hangouts"""
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -27,6 +30,7 @@ class HangoutListCreateView(generics.ListCreateAPIView):
         hangout.participants.add(self.request.user)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class HangoutDetailView(generics.RetrieveUpdateDestroyAPIView):
     """API endpoint for retrieving, updating, or deleting a hangout"""
     queryset = Hangout.objects.all()
@@ -42,6 +46,7 @@ class HangoutDetailView(generics.RetrieveUpdateDestroyAPIView):
         return super().delete(request, *args, **kwargs)
 
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def join_hangout(request, pk):
@@ -72,6 +77,7 @@ def join_hangout(request, pk):
     }, status=status.HTTP_200_OK)
 
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def leave_hangout(request, pk):
@@ -102,6 +108,7 @@ def leave_hangout(request, pk):
     }, status=status.HTTP_200_OK)
 
 
+@csrf_exempt
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def my_hangouts(request):

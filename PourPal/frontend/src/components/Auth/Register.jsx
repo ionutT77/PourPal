@@ -33,11 +33,34 @@ const Register = () => {
             history.push('/login');
         } catch (err) {
             console.error('Registration failed:', err);
-            const errorMsg = err.response?.data?.email?.[0] || 
-                           err.response?.data?.password?.[0] ||
-                           err.response?.data?.non_field_errors?.[0] ||
-                           'Registration failed. Please try again.';
-            setError(errorMsg);
+
+            // Handle different error formats
+            if (err.response?.data) {
+                const errors = err.response.data;
+                let errorMessages = [];
+
+                // Collect all error messages
+                Object.keys(errors).forEach(key => {
+                    if (Array.isArray(errors[key])) {
+                        errorMessages.push(...errors[key]);
+                    } else if (typeof errors[key] === 'string') {
+                        errorMessages.push(errors[key]);
+                    } else if (typeof errors[key] === 'object') {
+                        // Handle nested errors
+                        Object.values(errors[key]).forEach(val => {
+                            if (Array.isArray(val)) {
+                                errorMessages.push(...val);
+                            } else {
+                                errorMessages.push(val);
+                            }
+                        });
+                    }
+                });
+
+                setError(errorMessages.join(' ') || 'Registration failed. Please try again.');
+            } else {
+                setError('Registration failed. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -48,9 +71,9 @@ const Register = () => {
             <div className="auth-card">
                 <h2>Join PourPal</h2>
                 <p className="auth-subtitle">Connect with friends over drinks!</p>
-                
+
                 {error && <div className="error-message">{error}</div>}
-                
+
                 <form onSubmit={handleSubmit} className="auth-form">
                     <div className="form-group">
                         <label htmlFor="email">Email</label>
@@ -103,6 +126,9 @@ const Register = () => {
                             minLength="8"
                             required
                         />
+                        <small className="form-hint">
+                            Must contain: 1 uppercase, 1 number, 1 special character
+                        </small>
                     </div>
 
                     <div className="form-group">

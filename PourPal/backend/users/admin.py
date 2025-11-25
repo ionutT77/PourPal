@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Profile
+from .models import User, Profile, ProfilePhoto
 
 
 @admin.register(User)
@@ -12,5 +12,12 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'bio']
+    list_display = ['user', 'age', 'bio']
     search_fields = ['user__email', 'user__username', 'bio']
+
+
+@admin.register(ProfilePhoto)
+class ProfilePhotoAdmin(admin.ModelAdmin):
+    list_display = ['profile', 'is_primary', 'order', 'uploaded_at']
+    list_filter = ['is_primary']
+    ordering = ['profile', 'order']

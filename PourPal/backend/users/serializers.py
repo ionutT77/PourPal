@@ -1,12 +1,70 @@
+import re
 from rest_framework import serializers
-from .models import User, Profile
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError as DjangoValidationError
+from .models import User, Profile, ProfilePhoto, PREDEFINED_HOBBIES
+
+
+class ProfilePhotoSerializer(serializers.ModelSerializer):
+    """Serializer for profile photos"""
+    image_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = ProfilePhoto
+        fields = ['id', 'image', 'image_url', 'is_primary', 'order', 'uploaded_at']
+        read_only_fields = ['id', 'uploaded_at']
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            return obj.image.url
+        return None
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    """Serializer for user profile"""
+    """Serializer for user profile with all fields"""
+    photos = ProfilePhotoSerializer(many=True, read_only=True)
+    photo_count = serializers.ReadOnlyField()
+    primary_photo_url = serializers.SerializerMethodField()
+    predefined_hobbies = serializers.SerializerMethodField()
+    
     class Meta:
         model = Profile
-        fields = ['profile_picture', 'bio']
+        fields = [
+            'id', 'bio', 'age', 'interests', 'hobbies', 
+            'favorite_drinks', 'favorite_food',
+            'instagram', 'twitter', 'facebook', 'linkedin', 'snapchat',
+            'photos', 'photo_count', 'primary_photo_url', 'predefined_hobbies',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+    
+    def get_primary_photo_url(self, obj):
+        primary = obj.primary_photo
+        if primary and primary.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(primary.image.url)
+            return primary.image.url
+        return None
+    
+    def get_predefined_hobbies(self, obj):
+        """Return list of predefined hobbies for selection"""
+        return PREDEFINED_HOBBIES
+    
+    def validate_hobbies(self, value):
+        """Validate that user selects max 3 hobbies"""
+        if len(value) > 3:
+            raise serializers.ValidationError("You can select a maximum of 3 hobbies.")
+        return value
+    
+    def validate_age(self, value):
+        """Validate age is 18+"""
+        if value and value < 18:
+            raise serializers.ValidationError("You must be at least 18 years old.")
+        return value
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -20,7 +78,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    """Serializer for user registration"""
+    """Serializer for user registration with password and email validation"""
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True)
     
@@ -28,11 +86,49 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ['email', 'username', 'first_name', 'password', 'password_confirm', 'is_18_plus']
     
+    def validate_email(self, value):
+        """Validate email format"""
+        try:
+            validate_email(value)
+        except DjangoValidationError:
+            raise serializers.ValidationError("Enter a valid email address.")
+        
+        # Check if email already exists
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        
+        return value
+    
+    def validate_password(self, value):
+        """
+        Validate password strength:
+        - At least 1 uppercase letter
+        - At least 1 number
+        - At least 1 special character
+        """
+        if not re.search(r'[A-Z]', value):
+            raise serializers.ValidationError(
+                "Password must contain at least one uppercase letter."
+            )
+        
+        if not re.search(r'\d', value):
+            raise serializers.ValidationError(
+                "Password must contain at least one number."
+            )
+        
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;~`]', value):
+            raise serializers.ValidationError(
+                "Password must contain at least one special character (!@#$%^&*(),.?\":{}|<>_-+=[]\\\/;~`)."
+            )
+        
+        return value
+    
     def validate(self, data):
+        """Validate password confirmation and age requirement"""
         if data['password'] != data['password_confirm']:
-            raise serializers.ValidationError("Passwords don't match")
+            raise serializers.ValidationError({"password_confirm": "Passwords don't match."})
         if not data.get('is_18_plus'):
-            raise serializers.ValidationError("You must be 18+ to register")
+            raise serializers.ValidationError({"is_18_plus": "You must be 18+ to register."})
         return data
     
     def create(self, validated_data):
