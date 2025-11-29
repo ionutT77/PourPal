@@ -4,8 +4,13 @@ from rest_framework.decorators import api_view, permission_classes
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from .models import Hangout
-from .serializers import HangoutSerializer, HangoutCreateSerializer
+from .models import Hangout, HangoutMemory, HangoutMemoryPhoto
+from .serializers import (
+    HangoutSerializer, 
+    HangoutCreateSerializer,
+    HangoutMemorySerializer,
+    HangoutMemoryPhotoSerializer
+)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -126,4 +131,127 @@ def my_hangouts(request):
     return Response({
         'upcoming': HangoutSerializer(upcoming, many=True).data,
         'past': HangoutSerializer(past, many=True).data
+    }, status=status.HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def upload_memory_photo(request, pk):
+    """API endpoint for uploading memory photos to a hangout"""
+    try:
+        hangout = Hangout.objects.get(pk=pk)
+    except Hangout.DoesNotExist:
+        return Response({
+            'error': 'Hangout not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Check if user is a participant
+    if request.user not in hangout.participants.all():
+        return Response({
+            'error': 'Only participants can upload memory photos'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
+    # Get or create memory for this hangout
+    memory, created = HangoutMemory.objects.get_or_create(hangout=hangout)
+    
+    # Check photo limit (max 3)
+    if memory.photo_count >= 3:
+        return Response({
+            'error': 'Maximum 3 memory photos allowed per hangout'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Validate image
+    if 'image' not in request.FILES:
+        return Response({
+            'error': 'No image file provided'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Create memory photo
+    serializer = HangoutMemoryPhotoSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        serializer.save(memory=memory, uploaded_by=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@csrf_exempt
+@api_view(['DELETE'])
+@permission_classes([permissions.IsAuthenticated])
+def delete_memory_photo(request, pk, photo_id):
+    """API endpoint for deleting a memory photo"""
+    try:
+        hangout = Hangout.objects.get(pk=pk)
+        memory = hangout.memory
+        photo = memory.photos.get(id=photo_id)
+    except (Hangout.DoesNotExist, HangoutMemory.DoesNotExist, HangoutMemoryPhoto.DoesNotExist):
+        return Response({
+            'error': 'Photo not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Only the uploader or hangout creator can delete
+    if photo.uploaded_by != request.user and hangout.creator != request.user:
+        return Response({
+            'error': 'Only the uploader or hangout creator can delete this photo'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
+    photo.delete()
+    return Response({
+        'message': 'Memory photo deleted successfully'
+    }, status=status.HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticatedOrReadOnly])
+def get_hangout_memories(request, pk):
+    """API endpoint for getting hangout memories"""
+    try:
+        hangout = Hangout.objects.get(pk=pk)
+        memory = hangout.memory
+    except Hangout.DoesNotExist:
+        return Response({
+            'error': 'Hangout not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except HangoutMemory.DoesNotExist:
+        return Response({
+            'photos': [],
+            'photo_count': 0
+        }, status=status.HTTP_200_OK)
+    
+    serializer = HangoutMemorySerializer(memory, context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def end_hangout(request, pk):
+    """API endpoint for manually ending a hangout"""
+    try:
+        hangout = Hangout.objects.get(pk=pk)
+    except Hangout.DoesNotExist:
+        return Response({
+            'error': 'Hangout not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Only creator can end the hangout
+    if hangout.creator != request.user:
+        return Response({
+            'error': 'Only the creator can end this hangout'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
+    # Check if already ended
+    if hangout.is_ended:
+        return Response({
+            'error': 'Hangout is already ended'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # End the hangout
+    hangout.end_hangout()
+    
+    return Response({
+        'message': 'Hangout ended successfully',
+        'hangout': HangoutSerializer(hangout).data
     }, status=status.HTTP_200_OK)

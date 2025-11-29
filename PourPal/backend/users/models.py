@@ -100,6 +100,42 @@ class Profile(models.Model):
             return self.photos.order_by('order').first()
         except Exception:
             return None
+    
+    @property
+    def completion_percentage(self):
+        """Calculate profile completion percentage"""
+        total_points = 100
+        earned_points = 0
+        
+        # Photos (25 points)
+        if self.photos.count() > 0:
+            earned_points += 25
+        
+        # Age (10 points)
+        if self.age:
+            earned_points += 10
+        
+        # Bio (15 points)
+        if self.bio:
+            earned_points += 15
+        
+        # Hobbies (15 points)
+        if len(self.hobbies) > 0:
+            earned_points += 15
+        
+        # Interests (15 points)
+        if len(self.interests) > 0:
+            earned_points += 15
+        
+        # Favorite drinks (10 points)
+        if len(self.favorite_drinks) > 0:
+            earned_points += 10
+        
+        # Favorite food (10 points)
+        if self.favorite_food:
+            earned_points += 10
+        
+        return earned_points
 
 
 class ProfilePhoto(models.Model):

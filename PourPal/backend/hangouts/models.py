@@ -7,11 +7,27 @@ class Hangout(models.Model):
     """
     Model for social hangout events.
     """
+    CATEGORY_CHOICES = [
+        ('drinks', 'Drinks & Bar'),
+        ('food', 'Food & Dining'),
+        ('sports', 'Sports & Fitness'),
+        ('arts', 'Arts & Culture'),
+        ('music', 'Music & Concerts'),
+        ('outdoor', 'Outdoor Activities'),
+        ('gaming', 'Gaming'),
+        ('other', 'Other'),
+    ]
+    
     title = models.CharField(max_length=200)
     venue_location = models.CharField(max_length=300)
     date_time = models.DateTimeField()
     max_group_size = models.IntegerField(default=5)
     description = models.TextField()
+    category = models.CharField(
+        max_length=20,
+        choices=CATEGORY_CHOICES,
+        default='other'
+    )
     
     # Use settings.AUTH_USER_MODEL instead of 'auth.User'
     creator = models.ForeignKey(

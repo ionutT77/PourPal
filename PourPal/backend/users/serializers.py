@@ -27,6 +27,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     """Serializer for user profile with all fields"""
     photos = ProfilePhotoSerializer(many=True, read_only=True)
     photo_count = serializers.ReadOnlyField()
+    completion_percentage = serializers.ReadOnlyField()
     primary_photo_url = serializers.SerializerMethodField()
     predefined_hobbies = serializers.SerializerMethodField()
     
@@ -36,7 +37,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             'id', 'bio', 'age', 'interests', 'hobbies', 
             'favorite_drinks', 'favorite_food',
             'instagram', 'twitter', 'facebook', 'linkedin', 'snapchat',
-            'photos', 'photo_count', 'primary_photo_url', 'predefined_hobbies',
+            'photos', 'photo_count', 'completion_percentage', 'primary_photo_url', 'predefined_hobbies',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']

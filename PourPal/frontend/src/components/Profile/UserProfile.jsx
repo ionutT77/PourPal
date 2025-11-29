@@ -15,6 +15,8 @@ const UserProfile = () => {
     const { user } = useAuth();
     const [profile, setProfile] = useState(null);
     const [photos, setPhotos] = useState([]);
+    const [hangouts, setHangouts] = useState({ upcoming: [], past: [] });
+    const [activeHangoutTab, setActiveHangoutTab] = useState('upcoming');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
@@ -44,6 +46,7 @@ const UserProfile = () => {
 
     useEffect(() => {
         fetchProfile();
+        fetchMyHangouts();
     }, []);
 
     const fetchProfile = async () => {
@@ -71,6 +74,20 @@ const UserProfile = () => {
             console.error('Error fetching profile:', err);
             setError('Failed to load profile');
             setLoading(false);
+        }
+    };
+
+    const fetchMyHangouts = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/api/hangouts/my-hangouts/', {
+                withCredentials: true
+            });
+            setHangouts({
+                upcoming: response.data.upcoming || [],
+                past: response.data.past || []
+            });
+        } catch (err) {
+            console.error('Error fetching hangouts:', err);
         }
     };
 
@@ -221,14 +238,35 @@ const UserProfile = () => {
     return (
         <div className="profile-container">
             <div className="profile-header">
-                <h1>My Profile</h1>
+                <h1>👤 My Profile</h1>
                 <button
                     className="edit-toggle-btn"
                     onClick={() => setIsEditing(!isEditing)}
                 >
-                    {isEditing ? '👁️ View Mode' : '✏️ Edit Profile'}
+                    {isEditing ? '❌ Cancel' : '✏️ Edit Profile'}
                 </button>
             </div>
+
+            {/* Profile Completion Progress */}
+            {profile && (
+                <div className="completion-section">
+                    <div className="completion-header">
+                        <span className="completion-label">Profile Completion</span>
+                        <span className="completion-percentage">{profile.completion_percentage}%</span>
+                    </div>
+                    <div className="progress-bar">
+                        <div
+                            className="progress-fill"
+                            style={{ width: `${profile.completion_percentage}%` }}
+                        ></div>
+                    </div>
+                    {profile.completion_percentage < 100 && (
+                        <p className="completion-hint">
+                            💡 Complete your profile to increase your chances of finding great hangouts!
+                        </p>
+                    )}
+                </div>
+            )}
 
             {error && <div className="error-banner">{error}</div>}
             {success && <div className="success-banner">{success}</div>}
@@ -491,6 +529,58 @@ const UserProfile = () => {
                             placeholder="username"
                         />
                     </div>
+                </div>
+            </div>
+
+            {/* My Hangouts Section */}
+            <div className="profile-section">
+                <h2>🍻 My Hangouts</h2>
+
+                {/* Tabs */}
+                <div className="hangout-tabs">
+                    <button
+                        className={`tab-btn ${activeHangoutTab === 'upcoming' ? 'active' : ''}`}
+                        onClick={() => setActiveHangoutTab('upcoming')}
+                    >
+                        Upcoming ({hangouts.upcoming.length})
+                    </button>
+                    <button
+                        className={`tab-btn ${activeHangoutTab === 'past' ? 'active' : ''}`}
+                        onClick={() => setActiveHangoutTab('past')}
+                    >
+                        Past ({hangouts.past.length})
+                    </button>
+                </div>
+
+                {/* Hangout Cards */}
+                <div className="my-hangouts-grid">
+                    {activeHangoutTab === 'upcoming' && hangouts.upcoming.length === 0 && (
+                        <p className="no-hangouts-message">No upcoming hangouts yet</p>
+                    )}
+                    {activeHangoutTab === 'past' && hangouts.past.length === 0 && (
+                        <p className="no-hangouts-message">No past hangouts yet</p>
+                    )}
+
+                    {(activeHangoutTab === 'upcoming' ? hangouts.upcoming : hangouts.past).map((hangout) => (
+                        <a
+                            key={hangout.id}
+                            href={`/hangouts/${hangout.id}`}
+                            className="my-hangout-card"
+                        >
+                            <div className="my-hangout-header">
+                                <h4>{hangout.title}</h4>
+                                {hangout.is_ended && (
+                                    <span className="ended-badge-mini">Ended</span>
+                                )}
+                            </div>
+                            <p className="my-hangout-desc">{hangout.description}</p>
+                            <div className="my-hangout-info">
+                                <span>📅 {new Date(hangout.date_time).toLocaleDateString()}</span>
+                                <span>📍 {hangout.venue_location}</span>
+                                <span>👥 {hangout.participant_count} participants</span>
+                            </div>
+                        </a>
+                    ))}
                 </div>
             </div>
 

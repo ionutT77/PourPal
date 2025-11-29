@@ -74,13 +74,46 @@
     background: rgba(255, 255, 255, 0.3);
 }
 
-.navbar-user {
-    color: white;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 6px;
+/* Profile Avatar with Progress Ring */
+.profile-avatar-container {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    text-decoration: none;
+}
+
+.profile-avatar-container:hover {
+    transform: scale(1.1);
+}
+
+.progress-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 50px;
+}
+
+.progress-circle {
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+.profile-avatar-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: border-color 0.3s ease;
+}
+
+.profile-avatar-container:hover .profile-avatar-img {
+    border-color: rgba(102, 126, 234, 0.6);
 }
 
 /* Responsive */
@@ -99,7 +132,18 @@
         font-size: 14px;
     }
 
-    .navbar-user {
-        display: none;
+    .profile-avatar-container {
+        width: 45px;
+        height: 45px;
+    }
+
+    .progress-ring {
+        width: 45px;
+        height: 45px;
+    }
+
+    .profile-avatar-img {
+        width: 36px;
+        height: 36px;
     }
 }

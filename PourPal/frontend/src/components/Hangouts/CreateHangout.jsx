@@ -16,7 +16,8 @@ const CreateHangout = () => {
         venue_location: '',
         date_time: '',
         max_group_size: 3,
-        description: ''
+        description: '',
+        category: 'other'
     });
 
     const handleChange = (e) => {
@@ -48,7 +49,8 @@ const CreateHangout = () => {
                 venue_location: '',
                 date_time: '',
                 max_group_size: 3,
-                description: ''
+                description: '',
+                category: 'other'
             });
 
             // Redirect to hangouts list after 2 seconds
@@ -156,6 +158,30 @@ const CreateHangout = () => {
                                 <option value={10}>10 people</option>
                             </select>
                         </div>
+                    </div>
+
+                    {/* Category */}
+                    <div className="form-section">
+                        <label htmlFor="category">
+                            <span className="label-icon">🏷️</span>
+                            Category
+                        </label>
+                        <select
+                            id="category"
+                            name="category"
+                            value={formData.category}
+                            onChange={handleChange}
+                            required
+                        >
+                            <option value="drinks">🍻 Drinks & Bar</option>
+                            <option value="food">🍕 Food & Dining</option>
+                            <option value="sports">⚽ Sports & Fitness</option>
+                            <option value="arts">🎨 Arts & Culture</option>
+                            <option value="music">🎵 Music & Concerts</option>
+                            <option value="outdoor">🏕️ Outdoor Activities</option>
+                            <option value="gaming">🎮 Gaming</option>
+                            <option value="other">📌 Other</option>
+                        </select>
                     </div>
 
                     {/* Description */}
