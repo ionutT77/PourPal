@@ -23,6 +23,7 @@ const UserProfile = () => {
     const [success, setSuccess] = useState('');
     const [activePhotoIndex, setActivePhotoIndex] = useState(0);
     const [isEditing, setIsEditing] = useState(false);
+    const [draggedPhotoIndex, setDraggedPhotoIndex] = useState(null);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -139,6 +140,50 @@ const UserProfile = () => {
             console.error('Error deleting photo:', err);
             setError('Failed to delete photo');
         }
+    };
+
+    // Drag and Drop Handlers
+    const handleDragStart = (e, index) => {
+        setDraggedPhotoIndex(index);
+        e.dataTransfer.effectAllowed = 'move';
+        // Optional: Set a custom drag image if needed
+    };
+
+    const handleDragOver = (e, index) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    };
+
+    const handleDrop = async (e, dropIndex) => {
+        e.preventDefault();
+        if (draggedPhotoIndex === null || draggedPhotoIndex === dropIndex) return;
+
+        const newPhotos = [...photos];
+        const [draggedItem] = newPhotos.splice(draggedPhotoIndex, 1);
+        newPhotos.splice(dropIndex, 0, draggedItem);
+
+        setPhotos(newPhotos);
+        setDraggedPhotoIndex(null);
+        setActivePhotoIndex(dropIndex); // Update active photo to the dropped one
+
+        // Update order in backend
+        try {
+            const photoIds = newPhotos.map(p => p.id);
+            await axios.post(
+                'http://localhost:8000/api/users/profile/photos/reorder/',
+                { photo_ids: photoIds },
+                { withCredentials: true }
+            );
+        } catch (err) {
+            console.error('Error reordering photos:', err);
+            setError('Failed to save photo order');
+            // Revert on error (optional, but good UX)
+            fetchProfile();
+        }
+    };
+
+    const handleDragEnd = () => {
+        setDraggedPhotoIndex(null);
     };
 
     const addInterest = () => {
@@ -295,8 +340,14 @@ const UserProfile = () => {
                                 {photos.map((photo, index) => (
                                     <div
                                         key={photo.id}
-                                        className={`thumbnail ${index === activePhotoIndex ? 'active' : ''}`}
+                                        className={`thumbnail ${index === activePhotoIndex ? 'active' : ''} ${isEditing ? 'draggable' : ''}`}
                                         onClick={() => setActivePhotoIndex(index)}
+                                        draggable={isEditing}
+                                        onDragStart={(e) => handleDragStart(e, index)}
+                                        onDragOver={(e) => handleDragOver(e, index)}
+                                        onDrop={(e) => handleDrop(e, index)}
+                                        onDragEnd={handleDragEnd}
+                                        title={isEditing ? "Drag to reorder" : ""}
                                     >
                                         <img src={photo.image_url} alt={`Thumbnail ${index + 1}`} />
                                     </div>

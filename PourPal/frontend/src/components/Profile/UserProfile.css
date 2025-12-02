@@ -217,36 +217,7 @@
     transform: scale(1.05);
 }
 
-.photo-thumbnails {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}
-
-.thumbnail {
-    width: 80px;
-    height: 80px;
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: pointer;
-    border: 3px solid transparent;
-    transition: all 0.3s;
-}
-
-.thumbnail.active {
-    border-color: #667eea;
-    box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
-}
-
-.thumbnail:hover {
-    transform: scale(1.1);
-}
-
-.thumbnail img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+.photo-thumbnails {}
 
 .no-photos {
     text-align: center;
@@ -472,18 +443,6 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
-    white-space: nowrap;
-}
-
-.add-item-input button:hover,
-.custom-hobby-input button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-}
-
-/* Profile Actions */
-.profile-actions {
-    display: flex;
     gap: 15px;
     justify-content: center;
     margin-top: 30px;

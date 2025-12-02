@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import { getHangouts } from '../../services/api';
 import './HangoutList.css';
+import HangoutFilters from './HangoutFilters';
 
 const CATEGORIES = [
     { value: 'all', label: 'All Categories', icon: '🌟' },
@@ -18,39 +20,53 @@ const CATEGORIES = [
 const HangoutList = () => {
     const [hangouts, setHangouts] = useState([]);
     const [filteredHangouts, setFilteredHangouts] = useState([]);
+    const [recommendedHangouts, setRecommendedHangouts] = useState([]);
+    const [recommendationMessage, setRecommendationMessage] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [activeFilters, setActiveFilters] = useState({});
 
-    useEffect(() => {
-        const fetchHangouts = async () => {
-            try {
-                const response = await getHangouts();
-                setHangouts(response.data);
-                setFilteredHangouts(response.data);
-            } catch (err) {
-                setError(err);
-            } finally {
-                setLoading(false);
+    const fetchHangouts = async (filters = {}) => {
+        setLoading(true);
+        try {
+            // Combine category filter with advanced filters
+            const params = { ...filters };
+            if (selectedCategory !== 'all') {
+                params.category = selectedCategory;
             }
-        };
 
-        fetchHangouts();
-    }, []);
+            const [hangoutsRes, recommendedRes] = await Promise.all([
+                getHangouts(params),
+                axios.get('http://localhost:8000/api/hangouts/recommended/', { withCredentials: true })
+            ]);
+
+            setHangouts(hangoutsRes.data);
+            setFilteredHangouts(hangoutsRes.data);
+            setRecommendedHangouts(recommendedRes.data.recommended || []);
+            setRecommendationMessage(recommendedRes.data.message || '');
+        } catch (err) {
+            console.error("Error fetching data:", err);
+            setError(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        if (selectedCategory === 'all') {
-            setFilteredHangouts(hangouts);
-        } else {
-            setFilteredHangouts(hangouts.filter(h => h.category === selectedCategory));
-        }
-    }, [selectedCategory, hangouts]);
+        fetchHangouts(activeFilters);
+    }, [selectedCategory]); // Re-fetch when category changes
+
+    const handleFilterChange = (newFilters) => {
+        setActiveFilters(newFilters);
+        fetchHangouts(newFilters);
+    };
 
     const getCategoryInfo = (categoryValue) => {
         return CATEGORIES.find(c => c.value === categoryValue) || CATEGORIES[CATEGORIES.length - 1];
     };
 
-    if (loading) {
+    if (loading && !hangouts.length) {
         return (
             <div className="hangouts-container">
                 <div className="hangouts-header">
@@ -66,6 +82,60 @@ const HangoutList = () => {
                 <h1>🍻 Upcoming Hangouts</h1>
                 <p>Find and join exciting hangouts in your area</p>
             </div>
+
+            {/* Advanced Filters */}
+            <HangoutFilters onFilterChange={handleFilterChange} initialFilters={activeFilters} />
+
+            {/* Recommended Section */}
+            {(recommendedHangouts.length > 0 || recommendationMessage) && (
+                <div className="recommended-section">
+                    <div className="section-header">
+                        <h2>✨ Recommended for You</h2>
+                        <p>Based on your hobbies</p>
+                    </div>
+
+                    {recommendedHangouts.length > 0 ? (
+                        <div className="recommended-grid">
+                            {recommendedHangouts.map(hangout => {
+                                const categoryInfo = getCategoryInfo(hangout.category);
+                                return (
+                                    <Link
+                                        key={hangout.id}
+                                        to={`/hangouts/${hangout.id}`}
+                                        className="hangout-card recommended-card"
+                                    >
+                                        <div className="recommended-badge">Recommended</div>
+                                        <div className="hangout-card-header">
+                                            <h3>{hangout.title}</h3>
+                                            <div className="badges">
+                                                <span className="category-badge">
+                                                    {categoryInfo.icon} {categoryInfo.label}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <p>{hangout.description}</p>
+                                        <div className="hangout-info">
+                                            <div className="hangout-info-item">
+                                                <span>📅</span>
+                                                <span>{new Date(hangout.date_time).toLocaleDateString()}</span>
+                                            </div>
+                                            <div className="hangout-info-item">
+                                                <span>📍</span>
+                                                <span>{hangout.venue_location}</span>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="no-recommendations">
+                            <p>{recommendationMessage || "No matches found yet. Try adding more hobbies!"}</p>
+                            <Link to="/profile" className="add-hobbies-btn">Update Profile</Link>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Category Filter */}
             <div className="category-filter">
@@ -90,7 +160,7 @@ const HangoutList = () => {
             {filteredHangouts.length === 0 ? (
                 <div className="no-hangouts">
                     <h2>No hangouts available</h2>
-                    <p>{selectedCategory === 'all' ? 'Be the first to create one!' : `No ${getCategoryInfo(selectedCategory).label.toLowerCase()} hangouts yet`}</p>
+                    <p>Try adjusting your filters or create a new hangout!</p>
                 </div>
             ) : (
                 <div className="hangouts-grid">

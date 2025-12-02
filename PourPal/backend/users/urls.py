@@ -7,7 +7,9 @@ from .views import (
     ProfileUpdateView,
     ProfilePhotoUploadView,
     ProfilePhotoDeleteView,
-    ProfilePhotoUpdateView
+    ProfilePhotoDeleteView,
+    ProfilePhotoUpdateView,
+    ProfilePhotoReorderView
 )
 from .test_views import test_api
 
@@ -21,4 +23,5 @@ urlpatterns = [
     path('profile/photos/', ProfilePhotoUploadView.as_view(), name='profile-photo-upload'),
     path('profile/photos/<int:photo_id>/', ProfilePhotoDeleteView.as_view(), name='profile-photo-delete'),
     path('profile/photos/<int:photo_id>/update/', ProfilePhotoUpdateView.as_view(), name='profile-photo-update'),
+    path('profile/photos/reorder/', ProfilePhotoReorderView.as_view(), name='profile-photo-reorder'),
 ]

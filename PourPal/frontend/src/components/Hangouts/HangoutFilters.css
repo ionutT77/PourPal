@@ -1,0 +1,220 @@
+.filters-container {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 24px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.filters-header {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.filters-header:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.filters-header h3 {
+    margin: 0;
+    color: #fff;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toggle-icon {
+    color: rgba(255, 255, 255, 0.5);
+    transition: transform 0.3s ease;
+}
+
+.toggle-icon.open {
+    transform: rotate(180deg);
+}
+
+.filters-content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+    min-width: 280px;
+}
+
+.filter-group label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.date-inputs {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+.date-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #fff;
+    font-family: inherit;
+    min-width: 0;
+    /* Prevents overflow in flex items */
+}
+
+.date-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.location-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.location-btn {
+    background: rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    color: #667eea;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.location-btn:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+.location-btn.active {
+    background: #667eea;
+    color: #fff;
+    border-color: #667eea;
+}
+
+.radius-slider-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 4px;
+}
+
+.radius-slider {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    appearance: none;
+    outline: none;
+}
+
+.radius-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.radius-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.radius-value {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    text-align: right;
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.reset-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 8px 16px;
+}
+
+.reset-btn:hover {
+    color: #fff;
+}
+
+.apply-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: #fff;
+    padding: 8px 24px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: transform 0.2s;
+}
+
+.apply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.error-text {
+    color: #fca5a5;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+    .filter-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .date-inputs {
+        flex-direction: column;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+}

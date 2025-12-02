@@ -13,7 +13,7 @@ class HangoutSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hangout
         fields = [
-            'id', 'title', 'venue_location', 'date_time', 
+            'id', 'title', 'venue_location', 'latitude', 'longitude', 'date_time', 
             'max_group_size', 'description', 'category', 'creator', 
             'participants', 'participant_count', 'is_full',
             'is_ended', 'ended_at', 'auto_end_date',
@@ -33,7 +33,7 @@ class HangoutCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hangout
         fields = [
-            'title', 'venue_location', 'date_time', 
+            'title', 'venue_location', 'latitude', 'longitude', 'date_time', 
             'max_group_size', 'description', 'category'
         ]
 

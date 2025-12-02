@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
+import LocationAutocomplete from './LocationAutocomplete';
 import './CreateHangout.css';
 
 const CreateHangout = () => {
@@ -14,6 +15,8 @@ const CreateHangout = () => {
     const [formData, setFormData] = useState({
         title: '',
         venue_location: '',
+        latitude: null,
+        longitude: null,
         date_time: '',
         max_group_size: 3,
         description: '',
@@ -25,16 +28,28 @@ const CreateHangout = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleLocationSelect = (locationData) => {
+        setFormData(prev => ({
+            ...prev,
+            venue_location: locationData.venue_location,
+            latitude: locationData.latitude,
+            longitude: locationData.longitude
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
         try {
+            // Temporarily exclude latitude/longitude until migration is run
+            const { latitude, longitude, ...hangoutData } = formData;
+
             const response = await axios.post(
                 'http://localhost:8000/api/hangouts/',
                 {
-                    ...formData,
+                    ...hangoutData,
                     date_time: new Date(formData.date_time).toISOString()
                 },
                 { withCredentials: true }
@@ -47,6 +62,8 @@ const CreateHangout = () => {
             setFormData({
                 title: '',
                 venue_location: '',
+                latitude: null,
+                longitude: null,
                 date_time: '',
                 max_group_size: 3,
                 description: '',
@@ -108,14 +125,10 @@ const CreateHangout = () => {
                             <span className="label-icon">📍</span>
                             Venue / Location
                         </label>
-                        <input
-                            type="text"
-                            id="venue_location"
-                            name="venue_location"
+                        <LocationAutocomplete
                             value={formData.venue_location}
-                            onChange={handleChange}
-                            placeholder="e.g., Starbucks Downtown, Central Park, My Place"
-                            required
+                            onChange={(value) => setFormData(prev => ({ ...prev, venue_location: value }))}
+                            onLocationSelect={handleLocationSelect}
                         />
                     </div>
 

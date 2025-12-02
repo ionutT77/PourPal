@@ -24,10 +24,68 @@ class HangoutListCreateView(generics.ListCreateAPIView):
         return HangoutSerializer
     
     def get_queryset(self):
-        # Only show upcoming hangouts
-        return Hangout.objects.filter(
+        # Start with all upcoming hangouts
+        queryset = Hangout.objects.filter(
             date_time__gte=timezone.now()
         ).order_by('date_time')
+        
+        # Filter by category
+        category = self.request.query_params.get('category')
+        if category and category != 'all':
+            queryset = queryset.filter(category=category)
+            
+        # Filter by date range
+        start_date = self.request.query_params.get('start_date')
+        end_date = self.request.query_params.get('end_date')
+        
+        if start_date:
+            queryset = queryset.filter(date_time__date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(date_time__date__lte=end_date)
+            
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        
+        # Filter by location radius if provided
+        lat = request.query_params.get('lat')
+        lon = request.query_params.get('lon')
+        radius = request.query_params.get('radius') # in km
+        
+        if lat and lon and radius:
+            try:
+                user_lat = float(lat)
+                user_lon = float(lon)
+                radius_km = float(radius)
+                
+                # Filter in Python (simple Haversine implementation)
+                filtered_hangouts = []
+                from math import radians, cos, sin, asin, sqrt
+                
+                def haversine(lon1, lat1, lon2, lat2):
+                    # Convert decimal degrees to radians 
+                    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+                    # Haversine formula 
+                    dlon = lon2 - lon1 
+                    dlat = lat2 - lat1 
+                    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+                    c = 2 * asin(sqrt(a)) 
+                    r = 6371 # Radius of earth in kilometers
+                    return c * r
+                
+                for hangout in queryset:
+                    if hangout.latitude and hangout.longitude:
+                        dist = haversine(user_lon, user_lat, float(hangout.longitude), float(hangout.latitude))
+                        if dist <= radius_km:
+                            filtered_hangouts.append(hangout)
+                
+                queryset = filtered_hangouts
+            except (ValueError, TypeError):
+                pass # Ignore invalid coordinates/radius
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
     
     def perform_create(self, serializer):
         # Set the creator and add them as a participant
@@ -254,4 +312,38 @@ def end_hangout(request, pk):
     return Response({
         'message': 'Hangout ended successfully',
         'hangout': HangoutSerializer(hangout).data
+    }, status=status.HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_recommended_hangouts(request):
+    """API endpoint for getting recommended hangouts based on user hobbies"""
+    from .utils import get_user_category_preferences
+    
+    # Get user's preferred categories
+    preferred_categories = get_user_category_preferences(request.user)
+    
+    if not preferred_categories:
+        return Response({
+            'recommended': [],
+            'message': 'Add hobbies to your profile to get recommendations!'
+        }, status=status.HTTP_200_OK)
+        
+    # Filter upcoming hangouts by these categories
+    # Exclude hangouts the user created or already joined
+    recommended = Hangout.objects.filter(
+        category__in=preferred_categories,
+        date_time__gte=timezone.now(),
+        is_ended=False
+    ).exclude(
+        creator=request.user
+    ).exclude(
+        participants=request.user
+    ).order_by('date_time')[:5]  # Limit to 5 recommendations
+    
+    return Response({
+        'recommended': HangoutSerializer(recommended, many=True).data,
+        'categories': preferred_categories
     }, status=status.HTTP_200_OK)

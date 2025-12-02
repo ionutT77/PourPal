@@ -38,8 +38,8 @@ export const createHangout = async (hangoutData) => {
     return await api.post('/hangouts/', hangoutData);
 };
 
-export const getHangouts = async () => {
-    return await api.get('/hangouts/');
+export const getHangouts = async (params = {}) => {
+    return await api.get('/hangouts/', { params });
 };
 
 export const getHangoutDetails = async (hangoutId) => {

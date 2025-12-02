@@ -155,3 +155,48 @@ class ProfilePhotoUpdateView(APIView):
             return Response({
                 'error': 'Photo not found'
             }, status=status.HTTP_404_NOT_FOUND)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ProfilePhotoReorderView(APIView):
+    """API endpoint for reordering profile photos"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        photo_ids = request.data.get('photo_ids', [])
+        
+        if not photo_ids:
+            return Response({
+                'error': 'No photo IDs provided'
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        profile = request.user.profile
+        
+        # Verify all photos belong to user
+        user_photos = list(profile.photos.values_list('id', flat=True))
+        if not all(pid in user_photos for pid in photo_ids):
+            return Response({
+                'error': 'Invalid photo IDs provided'
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Update order
+        try:
+            for index, photo_id in enumerate(photo_ids):
+                photo = ProfilePhoto.objects.get(id=photo_id)
+                photo.order = index
+                photo.is_primary = (index == 0)
+                photo.save()
+                
+            # Return updated photos
+            updated_photos = ProfilePhoto.objects.filter(profile=profile).order_by('order')
+            serializer = ProfilePhotoSerializer(
+                updated_photos, 
+                many=True,
+                context={'request': request}
+            )
+            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                'error': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
