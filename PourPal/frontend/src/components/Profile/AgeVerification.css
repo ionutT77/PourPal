@@ -1,0 +1,308 @@
+.age-verification-container {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    margin-top: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.age-verification-container h3 {
+    margin: 0 0 20px 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Approved State */
+.verification-approved {
+    text-align: center;
+    padding: 30px;
+}
+
+.approved-icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    animation: scaleIn 0.5s ease;
+}
+
+.verification-approved h4 {
+    color: #51cf66;
+    font-size: 1.3rem;
+    margin: 0 0 10px 0;
+}
+
+.verification-approved p {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 15px 0;
+}
+
+.verified-date {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+/* Pending State */
+.verification-pending {
+    text-align: center;
+    padding: 30px;
+}
+
+.pending-icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.verification-pending h4 {
+    color: #ffd43b;
+    font-size: 1.3rem;
+    margin: 0 0 10px 0;
+}
+
+.verification-pending p {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 15px 0;
+}
+
+.pending-date {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+/* Rejected State */
+.verification-rejected {
+    text-align: center;
+    padding: 30px;
+}
+
+.rejected-icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+}
+
+.verification-rejected h4 {
+    color: #ff6b6b;
+    font-size: 1.3rem;
+    margin: 0 0 10px 0;
+}
+
+.rejection-reason {
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.reupload-btn {
+    margin-top: 20px;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.reupload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+/* Upload Section */
+.upload-section {
+    padding: 20px;
+}
+
+.upload-instruction {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+.image-preview {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.file-input-wrapper {
+    margin: 20px 0;
+}
+
+#document-upload {
+    display: none;
+}
+
+.file-input-label {
+    display: inline-block;
+    padding: 15px 30px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.file-input-label:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #667eea;
+}
+
+.upload-btn {
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.upload-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.upload-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.error-message {
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    border-radius: 10px;
+    padding: 12px;
+    margin: 15px 0;
+    color: #ff6b6b;
+    font-size: 0.95rem;
+}
+
+.success-message {
+    background: rgba(81, 207, 102, 0.1);
+    border: 1px solid rgba(81, 207, 102, 0.3);
+    border-radius: 10px;
+    padding: 12px;
+    margin: 15px 0;
+    color: #51cf66;
+    font-size: 0.95rem;
+}
+
+.privacy-note {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.privacy-note small {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin: 10px 0;
+}
+
+.status-pending {
+    background: rgba(255, 212, 59, 0.2);
+    color: #ffd43b;
+    border: 1px solid rgba(255, 212, 59, 0.3);
+}
+
+.status-approved {
+    background: rgba(81, 207, 102, 0.2);
+    color: #51cf66;
+    border: 1px solid rgba(81, 207, 102, 0.3);
+}
+
+.status-rejected {
+    background: rgba(255, 107, 107, 0.2);
+    color: #ff6b6b;
+    border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+/* Animations */
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .age-verification-container {
+        padding: 20px;
+    }
+
+    .age-verification-container h3 {
+        font-size: 1.3rem;
+    }
+
+    .approved-icon,
+    .pending-icon,
+    .rejected-icon {
+        font-size: 3rem;
+    }
+
+    .verification-approved h4,
+    .verification-pending h4,
+    .verification-rejected h4 {
+        font-size: 1.1rem;
+    }
+
+    .image-preview img {
+        max-height: 200px;
+    }
+}

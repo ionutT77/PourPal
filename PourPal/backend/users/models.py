@@ -136,6 +136,15 @@ class Profile(models.Model):
             earned_points += 10
         
         return earned_points
+    
+    @property
+    def is_age_verified(self):
+        """Check if user has verified age"""
+        try:
+            return self.user.age_verification.is_verified
+        except:
+            return False
+
 
 
 class ProfilePhoto(models.Model):
@@ -167,3 +176,53 @@ class ProfilePhoto(models.Model):
             self.is_primary = True
         
         super().save(*args, **kwargs)
+
+
+class AgeVerification(models.Model):
+    """
+    Age verification through document upload.
+    Users upload ID document for admin review.
+    """
+    STATUS_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    
+    user = models.OneToOneField(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='age_verification'
+    )
+    document = models.ImageField(
+        upload_to='age_verification/',
+        help_text="Upload a photo of your ID (government-issued document)"
+    )
+    status = models.CharField(
+        max_length=20, 
+        choices=STATUS_CHOICES, 
+        default='pending'
+    )
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    verified_at = models.DateTimeField(null=True, blank=True)
+    verified_by = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='verified_users'
+    )
+    rejection_reason = models.TextField(blank=True)
+    
+    class Meta:
+        verbose_name = "Age Verification"
+        verbose_name_plural = "Age Verifications"
+        ordering = ['-uploaded_at']
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.status}"
+    
+    @property
+    def is_verified(self):
+        """Quick check if verification is approved"""
+        return self.status == 'approved'

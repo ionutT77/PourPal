@@ -9,7 +9,11 @@ from .views import (
     ProfilePhotoDeleteView,
     ProfilePhotoDeleteView,
     ProfilePhotoUpdateView,
-    ProfilePhotoReorderView
+    ProfilePhotoReorderView,
+    AgeVerificationUploadView,
+    AgeVerificationStatusView,
+    AgeVerificationApproveView,
+    AgeVerificationRejectView
 )
 from .test_views import test_api
 
@@ -24,4 +28,9 @@ urlpatterns = [
     path('profile/photos/<int:photo_id>/', ProfilePhotoDeleteView.as_view(), name='profile-photo-delete'),
     path('profile/photos/<int:photo_id>/update/', ProfilePhotoUpdateView.as_view(), name='profile-photo-update'),
     path('profile/photos/reorder/', ProfilePhotoReorderView.as_view(), name='profile-photo-reorder'),
+    # Age Verification
+    path('age-verification/upload/', AgeVerificationUploadView.as_view(), name='age-verification-upload'),
+    path('age-verification/status/', AgeVerificationStatusView.as_view(), name='age-verification-status'),
+    path('age-verification/<int:verification_id>/approve/', AgeVerificationApproveView.as_view(), name='age-verification-approve'),
+    path('age-verification/<int:verification_id>/reject/', AgeVerificationRejectView.as_view(), name='age-verification-reject'),
 ]

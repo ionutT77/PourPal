@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
+import AgeVerification from './AgeVerification';
 import './UserProfile.css';
 
 const PREDEFINED_HOBBIES = [
@@ -315,6 +316,9 @@ const UserProfile = () => {
 
             {error && <div className="error-banner">{error}</div>}
             {success && <div className="success-banner">{success}</div>}
+
+            {/* Age Verification Section */}
+            <AgeVerification />
 
             {/* Photo Section */}
             <div className="profile-section photo-section">
