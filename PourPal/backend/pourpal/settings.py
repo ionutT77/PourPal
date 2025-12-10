@@ -77,15 +77,22 @@ WSGI_APPLICATION = 'pourpal.wsgi.application'
 # ASGI Application for Django Channels
 ASGI_APPLICATION = 'pourpal.asgi.application'
 
-# Channel Layers (Redis backend for WebSocket)
+# Channel Layers (In-Memory for development - no Redis needed)
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
+
+# For production with Redis, use this instead:
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [('127.0.0.1', 6379)],
+#         },
+#     },
+# }
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
