@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import HangoutMemoryUpload from './HangoutMemoryUpload';
+import GroupChat from '../Chat/GroupChat';
 import './HangoutDetails.css';
 
 const HangoutDetails = () => {
@@ -209,6 +210,11 @@ const HangoutDetails = () => {
                         hangoutId={id}
                         isParticipant={isParticipant}
                     />
+                )}
+
+                {/* Group Chat - Show for participants only */}
+                {isParticipant && !hangout.is_ended && (
+                    <GroupChat hangoutId={id} />
                 )}
             </div>
         </div>

@@ -5,13 +5,15 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from .models import User, Profile, ProfilePhoto
+from django.utils import timezone
+from .models import User, Profile, ProfilePhoto, AgeVerification
 from .serializers import (
     UserSerializer, 
     UserRegistrationSerializer, 
     UserLoginSerializer,
     ProfileSerializer,
-    ProfilePhotoSerializer
+    ProfilePhotoSerializer,
+    AgeVerificationSerializer
 )
 
 
@@ -200,3 +202,96 @@ class ProfilePhotoReorderView(APIView):
             return Response({
                 'error': str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AgeVerificationUploadView(APIView):
+    """API endpoint for uploading age verification document"""
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def post(self, request):
+        user = request.user
+        
+        # Check if verification already exists
+        try:
+            verification = AgeVerification.objects.get(user=user)
+            # If already approved, don't allow re-upload
+            if verification.status == 'approved':
+                return Response({
+                    'error': 'Your age is already verified'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            # If pending or rejected, allow re-upload by deleting old one
+            verification.delete()
+        except AgeVerification.DoesNotExist:
+            pass
+        
+        # Create new verification
+        serializer = AgeVerificationSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(user=user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AgeVerificationStatusView(APIView):
+    """API endpoint for checking age verification status"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        try:
+            verification = AgeVerification.objects.get(user=request.user)
+            serializer = AgeVerificationSerializer(verification, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except AgeVerification.DoesNotExist:
+            return Response({
+                'status': 'not_uploaded',
+                'message': 'No verification document uploaded'
+            }, status=status.HTTP_200_OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AgeVerificationApproveView(APIView):
+    """API endpoint for admin to approve age verification"""
+    permission_classes = [permissions.IsAdminUser]
+    
+    def post(self, request, verification_id):
+        try:
+            verification = AgeVerification.objects.get(id=verification_id)
+            verification.status = 'approved'
+            verification.verified_at = timezone.now()
+            verification.verified_by = request.user
+            verification.save()
+            
+            return Response({
+                'message': 'Verification approved successfully'
+            }, status=status.HTTP_200_OK)
+        except AgeVerification.DoesNotExist:
+            return Response({
+                'error': 'Verification not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AgeVerificationRejectView(APIView):
+    """API endpoint for admin to reject age verification"""
+    permission_classes = [permissions.IsAdminUser]
+    
+    def post(self, request, verification_id):
+        try:
+            verification = AgeVerification.objects.get(id=verification_id)
+            reason = request.data.get('reason', 'Document unclear or invalid')
+            
+            verification.status = 'rejected'
+            verification.rejection_reason = reason
+            verification.save()
+            
+            return Response({
+                'message': 'Verification rejected',
+                'reason': reason
+            }, status=status.HTTP_200_OK)
+        except AgeVerification.DoesNotExist:
+            return Response({
+                'error': 'Verification not found'
+            }, status=status.HTTP_404_NOT_FOUND)

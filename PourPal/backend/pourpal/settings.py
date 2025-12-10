@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
+    'daphne',  # Must be first for Channels
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'channels',     # Django Channels for WebSocket
     'users',        # Make sure this is here
     'hangouts',     # Make sure this is here
     'chat',         # Make sure this is here
@@ -71,6 +73,19 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'pourpal.wsgi.application'
+
+# ASGI Application for Django Channels
+ASGI_APPLICATION = 'pourpal.asgi.application'
+
+# Channel Layers (Redis backend for WebSocket)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
@@ -164,6 +179,7 @@ AUTH_USER_MODEL = 'users.User'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:5173",  # Vite default port
+    "ws://localhost:8000",    # WebSocket
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -196,3 +212,9 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:5173",
 ]
+
+# CSRF Cookie settings for cross-origin
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_HTTPONLY = True

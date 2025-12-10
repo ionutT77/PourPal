@@ -2,7 +2,7 @@ import re
 from rest_framework import serializers
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError as DjangoValidationError
-from .models import User, Profile, ProfilePhoto, PREDEFINED_HOBBIES
+from .models import User, Profile, ProfilePhoto, AgeVerification, PREDEFINED_HOBBIES
 
 
 class ProfilePhotoSerializer(serializers.ModelSerializer):
@@ -28,6 +28,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     photos = ProfilePhotoSerializer(many=True, read_only=True)
     photo_count = serializers.ReadOnlyField()
     completion_percentage = serializers.ReadOnlyField()
+    is_age_verified = serializers.ReadOnlyField()
     primary_photo_url = serializers.SerializerMethodField()
     predefined_hobbies = serializers.SerializerMethodField()
     
@@ -37,7 +38,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             'id', 'bio', 'age', 'interests', 'hobbies', 
             'favorite_drinks', 'favorite_food',
             'instagram', 'twitter', 'facebook', 'linkedin', 'snapchat',
-            'photos', 'photo_count', 'completion_percentage', 'primary_photo_url', 'predefined_hobbies',
+            'photos', 'photo_count', 'completion_percentage', 'is_age_verified', 'primary_photo_url', 'predefined_hobbies',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
@@ -150,3 +151,21 @@ class UserLoginSerializer(serializers.Serializer):
     """Serializer for user login"""
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
+
+
+class AgeVerificationSerializer(serializers.ModelSerializer):
+    """Serializer for age verification"""
+    document_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = AgeVerification
+        fields = ['id', 'document', 'document_url', 'status', 'uploaded_at', 'verified_at', 'rejection_reason']
+        read_only_fields = ['id', 'status', 'verified_at', 'rejection_reason', 'uploaded_at']
+    
+    def get_document_url(self, obj):
+        if obj.document:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.document.url)
+            return obj.document.url
+        return None
