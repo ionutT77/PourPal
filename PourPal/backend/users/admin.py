@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import User, Profile, ProfilePhoto, AgeVerification
+from .models import User, Profile, ProfilePhoto, AgeVerification, Report
 
 
 @admin.register(User)
@@ -55,3 +55,51 @@ class AgeVerificationAdmin(admin.ModelAdmin):
             'fields': ('status', 'verified_at', 'verified_by', 'rejection_reason')
         }),
     )
+
+
+@admin.register(Report)
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ['id', 'reporter_email', 'reported_user_email', 'reason', 'status', 'created_at']
+    list_filter = ['status', 'reason', 'created_at']
+    search_fields = ['reporter__email', 'reported_user__email', 'description']
+    ordering = ['-created_at']
+    readonly_fields = ['reporter', 'reported_user', 'created_at', 'reviewed_at']
+    
+    def reporter_email(self, obj):
+        return obj.reporter.email if obj.reporter else 'N/A'
+    reporter_email.short_description = 'Reporter'
+    reporter_email.admin_order_field = 'reporter__email'
+    
+    def reported_user_email(self, obj):
+        return obj.reported_user.email if obj.reported_user else 'N/A'
+    reported_user_email.short_description = 'Reported User'
+    reported_user_email.admin_order_field = 'reported_user__email'
+    
+    fieldsets = (
+        ('Report Information', {
+            'fields': ('reporter', 'reported_user', 'reason', 'description', 'created_at')
+        }),
+        ('Review Status', {
+            'fields': ('status', 'admin_notes', 'reviewed_by', 'reviewed_at')
+        }),
+    )
+    
+    actions = ['mark_under_review', 'mark_resolved', 'mark_dismissed']
+    
+    def mark_under_review(self, request, queryset):
+        for report in queryset:
+            report.mark_under_review(request.user)
+        self.message_user(request, f"{queryset.count()} report(s) marked as under review.")
+    mark_under_review.short_description = "Mark selected reports as under review"
+    
+    def mark_resolved(self, request, queryset):
+        for report in queryset:
+            report.resolve(request.user)
+        self.message_user(request, f"{queryset.count()} report(s) marked as resolved.")
+    mark_resolved.short_description = "Mark selected reports as resolved"
+    
+    def mark_dismissed(self, request, queryset):
+        for report in queryset:
+            report.dismiss(request.user)
+        self.message_user(request, f"{queryset.count()} report(s) dismissed.")
+    mark_dismissed.short_description = "Dismiss selected reports"

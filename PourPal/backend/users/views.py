@@ -6,14 +6,17 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.utils import timezone
-from .models import User, Profile, ProfilePhoto, AgeVerification
+from .models import User, Profile, ProfilePhoto, AgeVerification, Report
 from .serializers import (
     UserSerializer, 
     UserRegistrationSerializer, 
     UserLoginSerializer,
     ProfileSerializer,
     ProfilePhotoSerializer,
-    AgeVerificationSerializer
+    AgeVerificationSerializer,
+    ReportSerializer,
+    ReportListSerializer,
+    PublicProfileSerializer
 )
 
 
@@ -294,4 +297,135 @@ class AgeVerificationRejectView(APIView):
         except AgeVerification.DoesNotExist:
             return Response({
                 'error': 'Verification not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+
+# ========== REPORT SYSTEM VIEWS ==========
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ReportCreateView(APIView):
+    """API endpoint for submitting a report"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        serializer = ReportSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(reporter=request.user)
+            return Response({
+                'message': 'Report submitted successfully',
+                'report': serializer.data
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ReportListView(APIView):
+    """API endpoint for listing all reports (admin only)"""
+    permission_classes = [permissions.IsAdminUser]
+    
+    def get(self, request):
+        # Filter by status if provided
+        status_filter = request.query_params.get('status', None)
+        
+        if status_filter:
+            reports = Report.objects.filter(status=status_filter)
+        else:
+            reports = Report.objects.all()
+        
+        serializer = ReportListSerializer(reports, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ReportDetailView(APIView):
+    """API endpoint for viewing a specific report (admin only)"""
+    permission_classes = [permissions.IsAdminUser]
+    
+    def get(self, request, report_id):
+        try:
+            report = Report.objects.get(id=report_id)
+            serializer = ReportListSerializer(report)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Report.DoesNotExist:
+            return Response({
+                'error': 'Report not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ReportUpdateStatusView(APIView):
+    """API endpoint for updating report status (admin only)"""
+    permission_classes = [permissions.IsAdminUser]
+    
+    def patch(self, request, report_id):
+        try:
+            report = Report.objects.get(id=report_id)
+            new_status = request.data.get('status')
+            admin_notes = request.data.get('admin_notes', '')
+            
+            if new_status not in ['under_review', 'resolved', 'dismissed']:
+                return Response({
+                    'error': 'Invalid status. Must be: under_review, resolved, or dismissed'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Update report using helper methods
+            if new_status == 'under_review':
+                report.mark_under_review(request.user)
+            elif new_status == 'resolved':
+                report.resolve(request.user, admin_notes)
+            elif new_status == 'dismissed':
+                report.dismiss(request.user, admin_notes)
+            
+            serializer = ReportListSerializer(report)
+            return Response({
+                'message': f'Report status updated to {new_status}',
+                'report': serializer.data
+            }, status=status.HTTP_200_OK)
+            
+        except Report.DoesNotExist:
+            return Response({
+                'error': 'Report not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class MyReportsView(APIView):
+    """API endpoint for viewing user's own submitted reports"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        reports = Report.objects.filter(reporter=request.user)
+        serializer = ReportSerializer(reports, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# ========== PUBLIC PROFILE VIEW ==========
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PublicProfileView(APIView):
+    """API endpoint for viewing other users' public profiles"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request, user_id):
+        try:
+            # Prevent viewing own profile through this endpoint
+            if request.user.id == user_id:
+                return Response({
+                    'error': 'Use /api/users/profile/ to view your own profile'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Get the user's profile
+            user = User.objects.get(id=user_id)
+            profile = user.profile
+            
+            serializer = PublicProfileSerializer(profile, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+        except User.DoesNotExist:
+            return Response({
+                'error': 'User not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Profile.DoesNotExist:
+            return Response({
+                'error': 'Profile not found'
             }, status=status.HTTP_404_NOT_FOUND)

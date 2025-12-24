@@ -7,13 +7,18 @@ from .views import (
     ProfileUpdateView,
     ProfilePhotoUploadView,
     ProfilePhotoDeleteView,
-    ProfilePhotoDeleteView,
     ProfilePhotoUpdateView,
     ProfilePhotoReorderView,
     AgeVerificationUploadView,
     AgeVerificationStatusView,
     AgeVerificationApproveView,
-    AgeVerificationRejectView
+    AgeVerificationRejectView,
+    ReportCreateView,
+    ReportListView,
+    ReportDetailView,
+    ReportUpdateStatusView,
+    MyReportsView,
+    PublicProfileView
 )
 from .test_views import test_api
 
@@ -24,6 +29,7 @@ urlpatterns = [
     path('logout/', UserLogoutView.as_view(), name='user-logout'),
     path('profile/', ProfileUpdateView.as_view(), name='user-profile'),
     path('profile/update/', ProfileUpdateView.as_view(), name='profile-update'),
+    path('profile/<int:user_id>/', PublicProfileView.as_view(), name='public-profile'),
     path('profile/photos/', ProfilePhotoUploadView.as_view(), name='profile-photo-upload'),
     path('profile/photos/<int:photo_id>/', ProfilePhotoDeleteView.as_view(), name='profile-photo-delete'),
     path('profile/photos/<int:photo_id>/update/', ProfilePhotoUpdateView.as_view(), name='profile-photo-update'),
@@ -33,4 +39,10 @@ urlpatterns = [
     path('age-verification/status/', AgeVerificationStatusView.as_view(), name='age-verification-status'),
     path('age-verification/<int:verification_id>/approve/', AgeVerificationApproveView.as_view(), name='age-verification-approve'),
     path('age-verification/<int:verification_id>/reject/', AgeVerificationRejectView.as_view(), name='age-verification-reject'),
+    # Reports
+    path('reports/', ReportCreateView.as_view(), name='report-create'),
+    path('reports/my/', MyReportsView.as_view(), name='my-reports'),
+    path('reports/all/', ReportListView.as_view(), name='report-list'),
+    path('reports/<int:report_id>/', ReportDetailView.as_view(), name='report-detail'),
+    path('reports/<int:report_id>/status/', ReportUpdateStatusView.as_view(), name='report-update-status'),
 ]

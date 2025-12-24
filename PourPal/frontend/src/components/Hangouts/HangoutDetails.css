@@ -156,6 +156,15 @@
     gap: 10px;
 }
 
+.participant-link {
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.participant-link:hover {
+    color: #667eea;
+}
+
 .creator-badge {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
