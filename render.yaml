@@ -4,7 +4,7 @@ services:
     env: python
     rootDir: PourPal/backend
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-    startCommand: daphne -b 0.0.0.0 -p 8000 pourpal.asgi:application
+    startCommand: python manage.py migrate && daphne -b 0.0.0.0 -p 8000 pourpal.asgi:application
     plan: free
     envVars:
       - key: PYTHON_VERSION
