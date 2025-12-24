@@ -579,7 +579,7 @@ frontend/src/
 
 ### Hangout System
 - ✅ Create hangouts with details and category
-- ✅ Auto-end after 3 days
+- ✅ Auto-end after 3 daysj
 - ✅ Manual end option (creator only)
 - ✅ Memory photos (max 3 per hangout)
 - ✅ Live preview when creating
@@ -614,5 +614,129 @@ frontend/src/
 
 ---
 
-**Last Updated:** 2025-12-02
-**Status:** ✅ Phases 1-7 Complete | User Verification Pending
+**Last Updated:** 2025-12-24
+**Status:** ✅ Phases 1-12 Complete | Friend System & Private Chat Fully Functional
+
+---
+
+### ✅ Phase 8: Report System (December 24, 2024)
+**Backend:**
+- Report model for flagging inappropriate profiles
+- Reason choices: inappropriate, harassment, fake, spam, underage, other
+- Status tracking: pending, under_review, resolved, dismissed
+- Admin review workflow with notes
+- API endpoints: create report, list reports (admin), report details, update status, my reports
+
+**Frontend:**
+- ReportButton component (integrated into PublicProfile)
+- ReportModal for submitting reports with reason selection
+- Report submission with description field
+- Success/error feedback
+
+### ✅ Phase 9: Public Profile View (December 24, 2024)
+**Backend:**
+- PublicProfileSerializer for filtered user data
+- Public profile endpoint (prevents self-viewing)
+- Shows: name, bio, age, hobbies, interests, photos
+
+**Frontend:**
+- PublicProfile component with dark theme
+- Photo gallery display
+- Profile information sections
+- ReportButton integration
+- Responsive design
+
+### ✅ Phase 10: Friend/Connection System (December 24, 2024)
+**Backend:**
+- Connection model (user, friend, status: pending/accepted/rejected)
+- Helper methods: accept(), reject()
+- Class methods: are_friends(), get_connection_status()
+- 8 API endpoints:
+  - Send connection request
+  - Accept/reject connection
+  - List friends (accepted connections)
+  - Pending requests (received)
+  - Remove connection
+  - Search users by username
+  - Get connection status
+- ConnectionSerializer and UserSearchSerializer
+
+**Frontend:**
+- FriendsPage component with 3 sections:
+  - User search bar
+  - Friends list with message buttons
+  - Pending requests (accept/reject)
+- ConnectionButton component (dynamic status display)
+- Integration into PublicProfile
+- Friends link in Navbar
+
+### ✅ Phase 11: Privacy Policy (December 24, 2024)
+**Frontend:**
+- Comprehensive Privacy Policy page
+- 10 sections covering:
+  - Data collection (personal, usage, technical)
+  - How data is used
+  - Information sharing (public vs private)
+  - Data security measures
+  - User rights (access, update, delete, portability)
+  - Age requirement (18+)
+  - Cookies policy
+  - Changes to policy
+  - Contact information
+- Privacy link in Navbar
+- Dark theme styling
+
+### ✅ Phase 12: Private Chat System (December 24, 2024)
+**Backend:**
+- PrivateMessage model (sender, receiver, message, is_read, created_at)
+- Friend verification (only friends can message)
+- 4 API endpoints:
+  - Send private message
+  - Get conversation (marks messages as read)
+  - List conversations (with unread counts)
+  - Mark messages as read
+- PrivateMessageSerializer and ConversationSerializer
+
+**Frontend:**
+- PrivateChat component:
+  - Message bubbles (sent/received styling)
+  - Real-time polling (every 3 seconds)
+  - Send message input
+  - Auto-scroll to latest message
+  - Time stamps
+- ConversationsList component:
+  - Inbox view with all conversations
+  - Last message preview
+  - Unread count badges
+  - Time formatting (relative)
+- Message buttons in FriendsPage
+- Messages link in Navbar with unread badge
+- Routes: /messages (inbox), /chat/:userId (chat)
+
+### API Endpoints Added Today
+
+**Reports:**
+- `POST /api/users/reports/` - Create report
+- `GET /api/users/reports/my/` - Get my reports
+- `GET /api/users/reports/all/` - List all reports (admin)
+- `GET /api/users/reports/{id}/` - Report details (admin)
+- `PATCH /api/users/reports/{id}/status/` - Update status (admin)
+
+**Public Profile:**
+- `GET /api/users/profile/{user_id}/` - View public profile
+
+**Connections:**
+- `POST /api/users/connections/send/{user_id}/` - Send request
+- `POST /api/users/connections/{id}/accept/` - Accept request
+- `POST /api/users/connections/{id}/reject/` - Reject request
+- `DELETE /api/users/connections/{id}/remove/` - Remove connection
+- `GET /api/users/connections/friends/` - List friends
+- `GET /api/users/connections/pending/` - Pending requests
+- `GET /api/users/connections/status/{user_id}/` - Connection status
+- `GET /api/users/search/?username={query}` - Search users
+
+**Private Chat:**
+- `POST /api/chat/private/send/` - Send message
+- `GET /api/chat/private/{user_id}/` - Get conversation
+- `GET /api/chat/private/conversations/` - List conversations
+- `POST /api/chat/private/{user_id}/read/` - Mark as read

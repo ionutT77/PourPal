@@ -25,3 +25,28 @@ class Chat(models.Model):
     
     def __str__(self):
         return f"{self.user.first_name}: {self.message_text[:50]}"
+
+class PrivateMessage(models.Model):
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='sent_private_messages'
+    )
+    receiver = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='received_private_messages'
+    )
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['created_at']
+        indexes = [
+            models.Index(fields=['sender', 'receiver', 'created_at']),
+            models.Index(fields=['receiver', 'is_read']),
+        ]
+    
+    def __str__(self):
+        return f"{self.sender.first_name} -> {self.receiver.first_name}: {self.message[:30]}"
