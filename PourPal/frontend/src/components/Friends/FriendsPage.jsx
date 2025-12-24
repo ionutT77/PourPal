@@ -198,9 +198,14 @@ const FriendsPage = () => {
                                 <Link to={`/profile/${friend.id}`} className="friend-name">
                                     {friend.first_name} (@{friend.username})
                                 </Link>
-                                <button onClick={() => handleRemove(friend.connection_id)} className="btn-remove">
-                                    Remove
-                                </button>
+                                <div className="friend-actions">
+                                    <Link to={`/chat/${friend.id}`} className="btn-message">
+                                        💬 Message
+                                    </Link>
+                                    <button onClick={() => handleRemove(friend.connection_id)} className="btn-remove">
+                                        Remove
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>

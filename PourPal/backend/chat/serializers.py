@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Chat
+from .models import Chat, PrivateMessage
 from users.serializers import UserSerializer
 
 
@@ -29,3 +29,20 @@ class ChatSerializer(serializers.ModelSerializer):
             pass
         return None
 
+
+class PrivateMessageSerializer(serializers.ModelSerializer):
+    sender_name = serializers.CharField(source='sender.first_name', read_only=True)
+    receiver_name = serializers.CharField(source='receiver.first_name', read_only=True)
+    
+    class Meta:
+        model = PrivateMessage
+        fields = ['id', 'sender', 'sender_name', 'receiver', 'receiver_name', 'message', 'is_read', 'created_at']
+        read_only_fields = ['id', 'sender', 'created_at']
+
+
+class ConversationSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    user_name = serializers.CharField()
+    last_message = serializers.CharField()
+    last_message_time = serializers.DateTimeField()
+    unread_count = serializers.IntegerField()

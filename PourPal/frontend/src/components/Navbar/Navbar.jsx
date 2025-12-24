@@ -9,10 +9,15 @@ const Navbar = () => {
     const history = useHistory();
     const { user, logout } = useAuth();
     const [profileData, setProfileData] = useState(null);
+    const [unreadCount, setUnreadCount] = useState(0);
 
     useEffect(() => {
         if (user) {
             fetchProfileData();
+            fetchUnreadCount();
+            // Poll for unread messages every 10 seconds
+            const interval = setInterval(fetchUnreadCount, 10000);
+            return () => clearInterval(interval);
         }
     }, [user]);
 
@@ -24,6 +29,18 @@ const Navbar = () => {
             setProfileData(response.data);
         } catch (error) {
             console.error('Error fetching profile:', error);
+        }
+    };
+
+    const fetchUnreadCount = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/api/chat/private/conversations/', {
+                withCredentials: true
+            });
+            const total = response.data.reduce((sum, conv) => sum + conv.unread_count, 0);
+            setUnreadCount(total);
+        } catch (error) {
+            console.error('Error fetching unread count:', error);
         }
     };
 
@@ -64,6 +81,10 @@ const Navbar = () => {
                             </Link>
                             <Link to="/friends" className="navbar-link">
                                 Friends
+                            </Link>
+                            <Link to="/messages" className="navbar-link">
+                                Messages
+                                {unreadCount > 0 && <span className="unread-badge">{unreadCount}</span>}
                             </Link>
                             <Link to="/create-hangout" className="navbar-link">
                                 Create Hangout

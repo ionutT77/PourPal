@@ -234,3 +234,26 @@
         flex: 1;
     }
 }
+
+.friend-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-message {
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-message:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(81, 207, 102, 0.4);
+}

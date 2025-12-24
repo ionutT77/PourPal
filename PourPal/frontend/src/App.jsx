@@ -12,6 +12,8 @@ import PublicProfile from './components/Profile/PublicProfile';
 import GroupChat from './components/Chat/GroupChat';
 import FriendsPage from './components/Friends/FriendsPage';
 import PrivacyPolicy from './components/Legal/PrivacyPolicy';
+import PrivateChat from './components/Chat/PrivateChat';
+import ConversationsList from './components/Chat/ConversationsList';
 
 const App = () => {
     return (
@@ -28,6 +30,8 @@ const App = () => {
                     <Route path="/profile/:userId" component={PublicProfile} />
                     <Route path="/friends" component={FriendsPage} />
                     <Route path="/privacy-policy" component={PrivacyPolicy} />
+                    <Route path="/messages" exact component={ConversationsList} />
+                    <Route path="/chat/:userId" component={PrivateChat} />
                     <Route path="/chat" component={GroupChat} />
                     <Route path="/" exact component={HangoutList} />
                 </Switch>
