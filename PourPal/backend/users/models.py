@@ -325,3 +325,53 @@ class Report(models.Model):
         if notes:
             self.admin_notes = notes
         self.save()
+
+class Connection(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_connections')
+    friend = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_connections')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ('user', 'friend')
+        indexes = [
+            models.Index(fields=['user', 'status']),
+            models.Index(fields=['friend', 'status']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.first_name} -> {self.friend.first_name} ({self.status})"
+    
+    def accept(self):
+        self.status = 'accepted'
+        self.save()
+    
+    def reject(self):
+        self.status = 'rejected'
+        self.save()
+    
+    @classmethod
+    def are_friends(cls, user1, user2):
+        return cls.objects.filter(
+            models.Q(user=user1, friend=user2, status='accepted') |
+            models.Q(user=user2, friend=user1, status='accepted')
+        ).exists()
+    
+    @classmethod
+    def get_connection_status(cls, user1, user2):
+        sent = cls.objects.filter(user=user1, friend=user2).first()
+        if sent:
+            return {'status': sent.status, 'direction': 'sent', 'connection_id': sent.id}
+        
+        received = cls.objects.filter(user=user2, friend=user1).first()
+        if received:
+            return {'status': received.status, 'direction': 'received', 'connection_id': received.id}
+        
+        return {'status': 'none', 'direction': None, 'connection_id': None}

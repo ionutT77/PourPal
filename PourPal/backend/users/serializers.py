@@ -2,7 +2,7 @@ import re
 from rest_framework import serializers
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError as DjangoValidationError
-from .models import User, Profile, ProfilePhoto, AgeVerification, Report, PREDEFINED_HOBBIES
+from .models import User, Profile, ProfilePhoto, AgeVerification, Report, Connection, PREDEFINED_HOBBIES
 
 
 class ProfilePhotoSerializer(serializers.ModelSerializer):
@@ -239,3 +239,29 @@ class PublicProfileSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(primary.image.url)
             return primary.image.url
         return None
+
+
+class ConnectionSerializer(serializers.ModelSerializer):
+    user_name = serializers.CharField(source='user.first_name', read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+    friend_name = serializers.CharField(source='friend.first_name', read_only=True)
+    friend_id = serializers.IntegerField(source='friend.id', read_only=True)
+    
+    class Meta:
+        model = Connection
+        fields = ['id', 'user_id', 'user_name', 'friend_id', 'friend_name', 'status', 'created_at']
+        read_only_fields = ['id', 'created_at', 'status']
+
+
+class UserSearchSerializer(serializers.ModelSerializer):
+    connection_status = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'username', 'connection_status']
+    
+    def get_connection_status(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return Connection.get_connection_status(request.user, obj)
+        return {'status': 'none', 'direction': None, 'connection_id': None}

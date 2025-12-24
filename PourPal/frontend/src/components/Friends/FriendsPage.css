@@ -1,0 +1,236 @@
+.friends-page-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    min-height: 100vh;
+}
+
+.friends-page-container h1 {
+    color: #fff;
+    font-size: 32px;
+    margin-bottom: 30px;
+}
+
+.friends-page-container h2 {
+    color: #667eea;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.error-message,
+.success-message {
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.error-message {
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: #ff6b6b;
+}
+
+.success-message {
+    background: rgba(72, 187, 120, 0.1);
+    border: 1px solid rgba(72, 187, 120, 0.3);
+    color: #48bb78;
+}
+
+/* Search Section */
+.search-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    font-size: 15px;
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.search-bar button {
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.search-bar button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.user-result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.user-name,
+.requester-name,
+.friend-name {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+.user-name:hover,
+.requester-name:hover,
+.friend-name:hover {
+    color: #667eea;
+}
+
+.btn-add,
+.btn-accept,
+.btn-reject,
+.btn-remove {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-add {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-accept {
+    background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+    color: white;
+}
+
+.btn-reject,
+.btn-remove {
+    background: rgba(255, 107, 107, 0.2);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: #ff6b6b;
+}
+
+.btn-add:hover,
+.btn-accept:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-reject:hover,
+.btn-remove:hover {
+    background: rgba(255, 107, 107, 0.3);
+}
+
+.status-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    background: rgba(255, 212, 59, 0.2);
+    color: #ffd43b;
+    border: 1px solid rgba(255, 212, 59, 0.3);
+}
+
+.status-badge.friends {
+    background: rgba(72, 187, 120, 0.2);
+    color: #48bb78;
+    border-color: rgba(72, 187, 120, 0.3);
+}
+
+/* Pending Requests */
+.pending-section,
+.friends-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.requests-list,
+.friends-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.request-item,
+.friend-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+}
+
+.request-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.no-friends {
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    padding: 30px;
+}
+
+.friends-loading {
+    text-align: center;
+    padding: 50px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 18px;
+}
+
+@media (max-width: 768px) {
+
+    .user-result,
+    .request-item,
+    .friend-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .request-actions {
+        width: 100%;
+    }
+
+    .btn-add,
+    .btn-accept,
+    .btn-reject,
+    .btn-remove {
+        flex: 1;
+    }
+}

@@ -18,7 +18,15 @@ from .views import (
     ReportDetailView,
     ReportUpdateStatusView,
     MyReportsView,
-    PublicProfileView
+    PublicProfileView,
+    SendConnectionRequestView,
+    AcceptConnectionView,
+    RejectConnectionView,
+    ListFriendsView,
+    PendingRequestsView,
+    RemoveConnectionView,
+    SearchUsersView,
+    ConnectionStatusView
 )
 from .test_views import test_api
 
@@ -45,4 +53,13 @@ urlpatterns = [
     path('reports/all/', ReportListView.as_view(), name='report-list'),
     path('reports/<int:report_id>/', ReportDetailView.as_view(), name='report-detail'),
     path('reports/<int:report_id>/status/', ReportUpdateStatusView.as_view(), name='report-update-status'),
+    # Connections/Friends
+    path('connections/send/<int:user_id>/', SendConnectionRequestView.as_view(), name='send-connection'),
+    path('connections/<int:connection_id>/accept/', AcceptConnectionView.as_view(), name='accept-connection'),
+    path('connections/<int:connection_id>/reject/', RejectConnectionView.as_view(), name='reject-connection'),
+    path('connections/<int:connection_id>/remove/', RemoveConnectionView.as_view(), name='remove-connection'),
+    path('connections/friends/', ListFriendsView.as_view(), name='list-friends'),
+    path('connections/pending/', PendingRequestsView.as_view(), name='pending-requests'),
+    path('connections/status/<int:user_id>/', ConnectionStatusView.as_view(), name='connection-status'),
+    path('search/', SearchUsersView.as_view(), name='search-users'),
 ]

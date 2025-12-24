@@ -1,0 +1,54 @@
+.connection-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.connection-btn.add-friend {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.connection-btn.add-friend:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.connection-btn.pending {
+    background: rgba(255, 212, 59, 0.2);
+    border: 1px solid rgba(255, 212, 59, 0.3);
+    color: #ffd43b;
+    cursor: not-allowed;
+}
+
+.connection-btn.friends {
+    background: rgba(72, 187, 120, 0.2);
+    border: 1px solid rgba(72, 187, 120, 0.3);
+    color: #48bb78;
+    cursor: default;
+}
+
+.connection-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.connection-btn.accept {
+    background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+    color: white;
+}
+
+.connection-btn.reject {
+    background: rgba(255, 107, 107, 0.2);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: #ff6b6b;
+}
+
+.connection-btn.accept:hover,
+.connection-btn.reject:hover {
+    transform: translateY(-2px);
+}

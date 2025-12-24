@@ -1,0 +1,127 @@
+.privacy-policy-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    min-height: 100vh;
+}
+
+.privacy-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.privacy-header h1 {
+    color: #fff;
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.last-updated {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+}
+
+.privacy-content {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.privacy-section {
+    margin-bottom: 35px;
+}
+
+.privacy-section h2 {
+    color: #667eea;
+    font-size: 24px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.privacy-section h3 {
+    color: #a8b3ff;
+    font-size: 18px;
+    margin: 20px 0 10px 0;
+}
+
+.privacy-section p {
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.8;
+    margin-bottom: 15px;
+}
+
+.privacy-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.privacy-section ul li {
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.8;
+    margin-bottom: 10px;
+    padding-left: 25px;
+    position: relative;
+}
+
+.privacy-section ul li::before {
+    content: "•";
+    color: #667eea;
+    font-weight: bold;
+    font-size: 20px;
+    position: absolute;
+    left: 0;
+}
+
+.privacy-section ul li strong {
+    color: #a8b3ff;
+}
+
+.privacy-footer {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.privacy-footer p {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.back-home-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.back-home-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 768px) {
+    .privacy-policy-container {
+        padding: 20px 15px;
+    }
+
+    .privacy-content {
+        padding: 25px 20px;
+    }
+
+    .privacy-header h1 {
+        font-size: 28px;
+    }
+
+    .privacy-section h2 {
+        font-size: 20px;
+    }
+}

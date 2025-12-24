@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import User, Profile, ProfilePhoto, AgeVerification, Report
+from .models import User, Profile, ProfilePhoto, AgeVerification, Report, Connection
 
 
 @admin.register(User)
@@ -103,3 +103,19 @@ class ReportAdmin(admin.ModelAdmin):
             report.dismiss(request.user)
         self.message_user(request, f"{queryset.count()} report(s) dismissed.")
     mark_dismissed.short_description = "Dismiss selected reports"
+
+
+@admin.register(Connection)
+class ConnectionAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user_email', 'friend_email', 'status', 'created_at']
+    list_filter = ['status', 'created_at']
+    search_fields = ['user__email', 'friend__email', 'user__first_name', 'friend__first_name']
+    ordering = ['-created_at']
+    
+    def user_email(self, obj):
+        return obj.user.email
+    user_email.short_description = 'User'
+    
+    def friend_email(self, obj):
+        return obj.friend.email
+    friend_email.short_description = 'Friend'

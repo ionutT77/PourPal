@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import ReportButton from '../Report/ReportButton';
+import ConnectionButton from '../Friends/ConnectionButton';
 import './PublicProfile.css';
 
 const PublicProfile = () => {
@@ -44,10 +45,16 @@ const PublicProfile = () => {
         <div className="public-profile-container">
             <div className="public-profile-header">
                 <h1>👤 {profile.user_name}'s Profile</h1>
-                <ReportButton
-                    userId={profile.user_id}
-                    userName={profile.user_name}
-                />
+                <div className="header-actions">
+                    <ConnectionButton
+                        userId={profile.user_id}
+                        userName={profile.user_name}
+                    />
+                    <ReportButton
+                        userId={profile.user_id}
+                        userName={profile.user_name}
+                    />
+                </div>
             </div>
 
             {/* Profile Photo */}
