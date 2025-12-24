@@ -194,7 +194,8 @@
 .main-photo img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .delete-photo-btn {
@@ -217,7 +218,78 @@
     transform: scale(1.05);
 }
 
-.photo-thumbnails {}
+/* Thumbnail Grid */
+.photo-thumbnails {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.thumbnail {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.thumbnail:hover {
+    border-color: rgba(102, 126, 234, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.thumbnail.active {
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+}
+
+.thumbnail.draggable {
+    cursor: move;
+}
+
+.thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Delete button on thumbnails */
+.thumbnail .thumbnail-delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255, 107, 107, 0.95);
+    color: white;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 10;
+}
+
+.thumbnail:hover .thumbnail-delete-btn {
+    opacity: 1;
+}
+
+.thumbnail .thumbnail-delete-btn:hover {
+    background: #ff6b6b;
+    transform: scale(1.1);
+}
+
 
 .no-photos {
     text-align: center;
@@ -255,18 +327,27 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
     margin-bottom: 20px;
+    align-items: start;
 }
 
 .social-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 15px;
+    align-items: start;
+    align-content: start;
+}
+
+.social-grid .form-field {
+    margin: 0;
+    vertical-align: top;
 }
 
 .form-field {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    align-self: start;
 }
 
 .form-field label {
@@ -275,6 +356,17 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
+}
+
+/* Ensure social media labels align properly */
+.social-grid .form-field label {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Add spacing for Favorite Food label - only in Favorites section */
+.profile-section:has(h2:contains("Favorites")) .form-field:last-child label {
+    margin-top: 15px;
 }
 
 .form-field input,

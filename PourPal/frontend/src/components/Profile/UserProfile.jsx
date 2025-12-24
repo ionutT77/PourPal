@@ -107,26 +107,51 @@ const UserProfile = () => {
             return;
         }
 
-        const formDataObj = new FormData();
-        formDataObj.append('image', file);
-        formDataObj.append('order', photos.length);
+        // Validate image dimensions
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
 
-        try {
-            const response = await axios.post(
-                'http://localhost:8000/api/users/profile/photos/',
-                formDataObj,
-                {
-                    withCredentials: true,
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                }
-            );
-            setPhotos([...photos, response.data]);
-            setSuccess('Photo uploaded successfully!');
-            setTimeout(() => setSuccess(''), 3000);
-        } catch (err) {
-            console.error('Error uploading photo:', err);
-            setError('Failed to upload photo');
-        }
+        img.onload = async () => {
+            URL.revokeObjectURL(objectUrl);
+
+            const aspectRatio = img.width / img.height;
+
+            // Check if aspect ratio is too extreme (too tall or too wide)
+            // Allow reasonable aspect ratios between 1:3 and 3:1
+            if (aspectRatio < 0.33 || aspectRatio > 3) {
+                setError('⚠️ Photo aspect ratio is too extreme. Please choose a photo with more balanced dimensions (not too tall or too wide).');
+                setTimeout(() => setError(''), 5000);
+                return;
+            }
+
+            const formDataObj = new FormData();
+            formDataObj.append('image', file);
+            formDataObj.append('order', photos.length);
+
+            try {
+                const response = await axios.post(
+                    'http://localhost:8000/api/users/profile/photos/',
+                    formDataObj,
+                    {
+                        withCredentials: true,
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    }
+                );
+                setPhotos([...photos, response.data]);
+                setSuccess('Photo uploaded successfully!');
+                setTimeout(() => setSuccess(''), 3000);
+            } catch (err) {
+                console.error('Error uploading photo:', err);
+                setError('Failed to upload photo');
+            }
+        };
+
+        img.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            setError('Failed to load image. Please try another file.');
+        };
+
+        img.src = objectUrl;
     };
 
     const handleDeletePhoto = async (photoId) => {
@@ -354,6 +379,18 @@ const UserProfile = () => {
                                         title={isEditing ? "Drag to reorder" : ""}
                                     >
                                         <img src={photo.image_url} alt={`Thumbnail ${index + 1}`} />
+                                        {isEditing && (
+                                            <button
+                                                className="thumbnail-delete-btn"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeletePhoto(photo.id);
+                                                }}
+                                                title="Delete this photo"
+                                            >
+                                                ×
+                                            </button>
+                                        )}
                                     </div>
                                 ))}
                             </div>
