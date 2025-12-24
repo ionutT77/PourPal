@@ -185,7 +185,8 @@ CORS_ALLOW_ALL_ORIGINS = False
 
 # Add production origins from env
 if os.environ.get('FRONTEND_URL'):
-    CORS_ALLOWED_ORIGINS.append(os.environ.get('FRONTEND_URL'))
+    frontend_url = os.environ.get('FRONTEND_URL').rstrip('/')
+    CORS_ALLOWED_ORIGINS.append(frontend_url)
     
 # Allow all methods for API
 CORS_ALLOW_METHODS = [
