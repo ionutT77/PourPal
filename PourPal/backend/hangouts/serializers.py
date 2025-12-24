@@ -30,12 +30,37 @@ class HangoutSerializer(serializers.ModelSerializer):
 
 class HangoutCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating a new hangout"""
+    invited_friends = serializers.ListField(
+        child=serializers.IntegerField(),
+        required=False,
+        write_only=True
+    )
+
     class Meta:
         model = Hangout
         fields = [
             'title', 'venue_location', 'latitude', 'longitude', 'date_time', 
-            'max_group_size', 'description', 'category'
+            'max_group_size', 'description', 'category', 'invited_friends'
         ]
+
+    def create(self, validated_data):
+        # Remove invited_friends from data before creating Hangout instance
+        invited_friends = validated_data.pop('invited_friends', [])
+        
+        # Create the hangout
+        hangout = super().create(validated_data)
+        
+        # Add invited friends as participants
+        if invited_friends:
+            from users.models import User
+            for friend_id in invited_friends:
+                try:
+                    friend = User.objects.get(id=friend_id)
+                    hangout.participants.add(friend)
+                except User.DoesNotExist:
+                    pass
+                    
+        return hangout
 
 
 class HangoutMemoryPhotoSerializer(serializers.ModelSerializer):

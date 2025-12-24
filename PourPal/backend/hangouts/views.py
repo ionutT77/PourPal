@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.db import models
 from .models import Hangout, HangoutMemory, HangoutMemoryPhoto
 from .serializers import (
     HangoutSerializer, 
@@ -34,14 +35,18 @@ class HangoutListCreateView(generics.ListCreateAPIView):
         if category and category != 'all':
             queryset = queryset.filter(category=category)
             
-        # Filter by date range
-        start_date = self.request.query_params.get('start_date')
-        end_date = self.request.query_params.get('end_date')
+        # Filter by date range (accept snake_case or camelCase)
+        start_date = self.request.query_params.get('start_date') or self.request.query_params.get('startDate')
+        end_date = self.request.query_params.get('end_date') or self.request.query_params.get('endDate')
         
         if start_date:
             queryset = queryset.filter(date_time__date__gte=start_date)
         if end_date:
             queryset = queryset.filter(date_time__date__lte=end_date)
+            
+        # Exclude hangouts the user has already joined or created (Discovery Mode)
+        if self.request.user.is_authenticated:
+            queryset = queryset.exclude(participants=self.request.user)
             
         return queryset
 
@@ -91,6 +96,17 @@ class HangoutListCreateView(generics.ListCreateAPIView):
         # Set the creator and add them as a participant
         hangout = serializer.save(creator=self.request.user)
         hangout.participants.add(self.request.user)
+        
+        # Add invited friends as participants
+        invited_friends = self.request.data.get('invited_friends', [])
+        if invited_friends:
+            from users.models import User
+            for friend_id in invited_friends:
+                try:
+                    friend = User.objects.get(id=friend_id)
+                    hangout.participants.add(friend)
+                except User.DoesNotExist:
+                    pass  # Skip invalid friend IDs
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -176,14 +192,18 @@ def leave_hangout(request, pk):
 @permission_classes([permissions.IsAuthenticated])
 def my_hangouts(request):
     """API endpoint for getting user's hangouts"""
+    # Upcoming: future hangouts that are not ended
     upcoming = Hangout.objects.filter(
         participants=request.user,
-        date_time__gte=timezone.now()
+        date_time__gte=timezone.now(),
+        is_ended=False
     ).order_by('date_time')
     
+    # Past: past hangouts OR ended hangouts (regardless of date)
     past = Hangout.objects.filter(
-        participants=request.user,
-        date_time__lt=timezone.now()
+        participants=request.user
+    ).filter(
+        models.Q(date_time__lt=timezone.now()) | models.Q(is_ended=True)
     ).order_by('-date_time')
     
     return Response({

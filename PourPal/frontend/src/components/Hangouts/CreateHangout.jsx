@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -11,6 +11,8 @@ const CreateHangout = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [friends, setFriends] = useState([]);
+    const [selectedFriends, setSelectedFriends] = useState([]);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -22,6 +24,29 @@ const CreateHangout = () => {
         description: '',
         category: 'other'
     });
+
+    useEffect(() => {
+        fetchFriends();
+    }, []);
+
+    const fetchFriends = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/api/users/connections/friends/', {
+                withCredentials: true
+            });
+            setFriends(response.data);
+        } catch (err) {
+            console.error('Error fetching friends:', err);
+        }
+    };
+
+    const handleFriendToggle = (friendId) => {
+        setSelectedFriends(prev =>
+            prev.includes(friendId)
+                ? prev.filter(id => id !== friendId)
+                : [...prev, friendId]
+        );
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -43,15 +68,32 @@ const CreateHangout = () => {
         setLoading(true);
 
         try {
-            // Temporarily exclude latitude/longitude until migration is run
-            const { latitude, longitude, ...hangoutData } = formData;
+            // Build hangout data with only valid model fields
+            const hangoutData = {
+                title: formData.title,
+                venue_location: formData.venue_location,
+                date_time: new Date(formData.date_time).toISOString(),
+                max_group_size: formData.max_group_size,
+                description: formData.description,
+                category: formData.category
+            };
+
+            // Only include lat/lon if they exist, and round to 6 decimal places to match backend
+            if (formData.latitude) {
+                hangoutData.latitude = Number(Number(formData.latitude).toFixed(6));
+            }
+            if (formData.longitude) {
+                hangoutData.longitude = Number(Number(formData.longitude).toFixed(6));
+            }
+
+            // Add invited_friends (handled separately in backend)
+            if (selectedFriends.length > 0) {
+                hangoutData.invited_friends = selectedFriends;
+            }
 
             const response = await axios.post(
                 'http://localhost:8000/api/hangouts/',
-                {
-                    ...hangoutData,
-                    date_time: new Date(formData.date_time).toISOString()
-                },
+                hangoutData,
                 { withCredentials: true }
             );
 
@@ -69,6 +111,7 @@ const CreateHangout = () => {
                 description: '',
                 category: 'other'
             });
+            setSelectedFriends([]);
 
             // Redirect to hangouts list after 2 seconds
             setTimeout(() => {
@@ -196,6 +239,33 @@ const CreateHangout = () => {
                             <option value="other">📌 Other</option>
                         </select>
                     </div>
+
+                    {/* Invite Friends */}
+                    {friends.length > 0 && (
+                        <div className="form-section">
+                            <label>
+                                <span className="label-icon">👥</span>
+                                Invite Friends (Optional)
+                            </label>
+                            <div className="friends-selector">
+                                {friends.map(friend => (
+                                    <div
+                                        key={friend.id}
+                                        className={`friend-chip ${selectedFriends.includes(friend.id) ? 'selected' : ''}`}
+                                        onClick={() => handleFriendToggle(friend.id)}
+                                    >
+                                        <span>{friend.first_name}</span>
+                                        {selectedFriends.includes(friend.id) && <span className="check-icon">✓</span>}
+                                    </div>
+                                ))}
+                            </div>
+                            {selectedFriends.length > 0 && (
+                                <small className="friend-count">
+                                    {selectedFriends.length} friend{selectedFriends.length > 1 ? 's' : ''} selected
+                                </small>
+                            )}
+                        </div>
+                    )}
 
                     {/* Description */}
                     <div className="form-section">
