@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './ConversationsList.css';
+import { API_BASE_URL } from '../../services/api';
 
 const ConversationsList = () => {
     const [conversations, setConversations] = useState([]);
@@ -15,7 +16,7 @@ const ConversationsList = () => {
 
     const fetchConversations = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/chat/private/conversations/', {
+            const response = await axios.get(`${API_BASE_URL}/chat/private/conversations/`, {
                 withCredentials: true
             });
             setConversations(response.data);

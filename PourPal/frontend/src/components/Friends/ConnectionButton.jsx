@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ConnectionButton.css';
+import { API_BASE_URL } from '../../services/api';
 
 const ConnectionButton = ({ userId, userName }) => {
     const [connectionStatus, setConnectionStatus] = useState(null);
@@ -12,7 +13,7 @@ const ConnectionButton = ({ userId, userName }) => {
 
     const fetchConnectionStatus = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/users/connections/status/${userId}/`, {
+            const response = await axios.get(`${API_BASE_URL}/users/connections/status/${userId}/`, {
                 withCredentials: true
             });
             setConnectionStatus(response.data);
@@ -25,7 +26,7 @@ const ConnectionButton = ({ userId, userName }) => {
 
     const handleSendRequest = async () => {
         try {
-            await axios.post(`http://localhost:8000/api/users/connections/send/${userId}/`, {}, {
+            await axios.post(`${API_BASE_URL}/users/connections/send/${userId}/`, {}, {
                 withCredentials: true
             });
             fetchConnectionStatus();
@@ -36,7 +37,7 @@ const ConnectionButton = ({ userId, userName }) => {
 
     const handleAccept = async () => {
         try {
-            await axios.post(`http://localhost:8000/api/users/connections/${connectionStatus.connection_id}/accept/`, {}, {
+            await axios.post(`${API_BASE_URL}/users/connections/${connectionStatus.connection_id}/accept/`, {}, {
                 withCredentials: true
             });
             fetchConnectionStatus();
@@ -47,7 +48,7 @@ const ConnectionButton = ({ userId, userName }) => {
 
     const handleReject = async () => {
         try {
-            await axios.post(`http://localhost:8000/api/users/connections/${connectionStatus.connection_id}/reject/`, {}, {
+            await axios.post(`${API_BASE_URL}/users/connections/${connectionStatus.connection_id}/reject/`, {}, {
                 withCredentials: true
             });
             fetchConnectionStatus();

@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import LocationAutocomplete from './LocationAutocomplete';
 import './CreateHangout.css';
+import { API_BASE_URL } from '../../services/api';
 
 const CreateHangout = () => {
     const history = useHistory();
@@ -31,7 +32,7 @@ const CreateHangout = () => {
 
     const fetchFriends = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/users/connections/friends/', {
+            const response = await axios.get(`${API_BASE_URL}/users/connections/friends/`, {
                 withCredentials: true
             });
             setFriends(response.data);
@@ -92,7 +93,7 @@ const CreateHangout = () => {
             }
 
             const response = await axios.post(
-                'http://localhost:8000/api/hangouts/',
+                `${API_BASE_URL}/hangouts/`,
                 hangoutData,
                 { withCredentials: true }
             );

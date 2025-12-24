@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import './GroupChat.css';
+import { API_BASE_URL, WS_BASE_URL } from '../../services/api';
 
 const GroupChat = ({ hangoutId }) => {
     const [messages, setMessages] = useState([]);
@@ -24,7 +25,7 @@ const GroupChat = ({ hangoutId }) => {
         const loadMessages = async () => {
             try {
                 const response = await axios.get(
-                    `http://localhost:8000/api/chat/${hangoutId}/messages/`,
+                    `${API_BASE_URL}/chat/${hangoutId}/messages/`,
                     { withCredentials: true }
                 );
                 setMessages(response.data);
@@ -38,7 +39,7 @@ const GroupChat = ({ hangoutId }) => {
 
     // WebSocket connection
     useEffect(() => {
-        const websocket = new WebSocket(`ws://localhost:8000/ws/chat/${hangoutId}/`);
+        const websocket = new WebSocket(`${WS_BASE_URL}/chat/${hangoutId}/`);
 
         websocket.onopen = () => {
             console.log('WebSocket connected');

@@ -5,6 +5,7 @@ import axios from 'axios';
 import HangoutMemoryUpload from './HangoutMemoryUpload';
 import GroupChat from '../Chat/GroupChat';
 import './HangoutDetails.css';
+import { API_BASE_URL } from '../../services/api';
 
 const HangoutDetails = () => {
     const { id } = useParams();
@@ -21,7 +22,7 @@ const HangoutDetails = () => {
     const fetchHangoutDetails = async () => {
         try {
             const response = await axios.get(
-                `http://localhost:8000/api/hangouts/${id}/`,
+                `${API_BASE_URL}/hangouts/${id}/`,
                 { withCredentials: true }
             );
             setHangout(response.data);
@@ -36,7 +37,7 @@ const HangoutDetails = () => {
     const handleJoin = async () => {
         try {
             await axios.post(
-                `http://localhost:8000/api/hangouts/${id}/join/`,
+                `${API_BASE_URL}/hangouts/${id}/join/`,
                 {},
                 { withCredentials: true }
             );
@@ -56,7 +57,7 @@ const HangoutDetails = () => {
 
         try {
             await axios.post(
-                `http://localhost:8000/api/hangouts/${id}/leave/`,
+                `${API_BASE_URL}/hangouts/${id}/leave/`,
                 {},
                 { withCredentials: true }
             );
@@ -76,7 +77,7 @@ const HangoutDetails = () => {
 
         try {
             await axios.post(
-                `http://localhost:8000/api/hangouts/${id}/end/`,
+                `${API_BASE_URL}/hangouts/${id}/end/`,
                 {},
                 { withCredentials: true }
             );

@@ -4,6 +4,7 @@ import axios from 'axios';
 import AgeVerification from './AgeVerification';
 import ReportButton from '../Report/ReportButton';
 import './UserProfile.css';
+import { API_BASE_URL } from '../../services/api';
 
 const PREDEFINED_HOBBIES = [
     'Reading', 'Gaming', 'Cooking', 'Traveling', 'Photography',
@@ -54,7 +55,7 @@ const UserProfile = () => {
 
     const fetchProfile = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/users/profile/', {
+            const response = await axios.get(`${API_BASE_URL}/users/profile/`, {
                 withCredentials: true
             });
             setProfile(response.data);
@@ -82,7 +83,7 @@ const UserProfile = () => {
 
     const fetchMyHangouts = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/hangouts/my-hangouts/', {
+            const response = await axios.get(`${API_BASE_URL}/hangouts/my-hangouts/`, {
                 withCredentials: true
             });
             setHangouts({
@@ -131,7 +132,7 @@ const UserProfile = () => {
 
             try {
                 const response = await axios.post(
-                    'http://localhost:8000/api/users/profile/photos/',
+                    `${API_BASE_URL}/users/profile/photos/`,
                     formDataObj,
                     {
                         withCredentials: true,
@@ -157,7 +158,7 @@ const UserProfile = () => {
 
     const handleDeletePhoto = async (photoId) => {
         try {
-            await axios.delete(`http://localhost:8000/api/users/profile/photos/${photoId}/`, {
+            await axios.delete(`${API_BASE_URL}/users/profile/photos/${photoId}/`, {
                 withCredentials: true
             });
             setPhotos(photos.filter(p => p.id !== photoId));
@@ -197,7 +198,7 @@ const UserProfile = () => {
         try {
             const photoIds = newPhotos.map(p => p.id);
             await axios.post(
-                'http://localhost:8000/api/users/profile/photos/reorder/',
+                `${API_BASE_URL}/users/profile/photos/reorder/`,
                 { photo_ids: photoIds },
                 { withCredentials: true }
             );
@@ -287,7 +288,7 @@ const UserProfile = () => {
 
         try {
             await axios.put(
-                'http://localhost:8000/api/users/profile/',
+                `${API_BASE_URL}/users/profile/`,
                 formData,
                 { withCredentials: true }
             );

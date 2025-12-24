@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import axios from 'axios';
 import './PrivateChat.css';
+import { API_BASE_URL } from '../../services/api';
 
 const PrivateChat = () => {
     const { userId } = useParams();
@@ -29,7 +30,7 @@ const PrivateChat = () => {
 
     const fetchConversation = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/chat/private/${userId}/`, {
+            const response = await axios.get(`${API_BASE_URL}/chat/private/${userId}/`, {
                 withCredentials: true
             });
             setMessages(response.data);
@@ -58,7 +59,7 @@ const PrivateChat = () => {
 
         setSending(true);
         try {
-            await axios.post('http://localhost:8000/api/chat/private/send/', {
+            await axios.post(`${API_BASE_URL}/chat/private/send/`, {
                 receiver: userId,
                 message: newMessage
             }, {

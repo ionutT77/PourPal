@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './FriendsPage.css';
+import { API_BASE_URL } from '../../services/api';
 
 const FriendsPage = () => {
     const [friends, setFriends] = useState([]);
@@ -19,7 +20,7 @@ const FriendsPage = () => {
 
     const fetchFriends = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/users/connections/friends/', {
+            const response = await axios.get(`${API_BASE_URL}/users/connections/friends/`, {
                 withCredentials: true
             });
             setFriends(response.data);
@@ -32,7 +33,7 @@ const FriendsPage = () => {
 
     const fetchPendingRequests = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/users/connections/pending/', {
+            const response = await axios.get(`${API_BASE_URL}/users/connections/pending/`, {
                 withCredentials: true
             });
             setPendingRequests(response.data);
@@ -48,7 +49,7 @@ const FriendsPage = () => {
         }
 
         try {
-            const response = await axios.get(`http://localhost:8000/api/users/search/?username=${searchQuery}`, {
+            const response = await axios.get(`${API_BASE_URL}/users/search/?username=${searchQuery}`, {
                 withCredentials: true
             });
             setSearchResults(response.data);
@@ -60,7 +61,7 @@ const FriendsPage = () => {
 
     const handleSendRequest = async (userId) => {
         try {
-            await axios.post(`http://localhost:8000/api/users/connections/send/${userId}/`, {}, {
+            await axios.post(`${API_BASE_URL}/users/connections/send/${userId}/`, {}, {
                 withCredentials: true
             });
             setSuccess('Friend request sent!');
@@ -73,7 +74,7 @@ const FriendsPage = () => {
 
     const handleAccept = async (connectionId) => {
         try {
-            await axios.post(`http://localhost:8000/api/users/connections/${connectionId}/accept/`, {}, {
+            await axios.post(`${API_BASE_URL}/users/connections/${connectionId}/accept/`, {}, {
                 withCredentials: true
             });
             setSuccess('Friend request accepted!');
@@ -87,7 +88,7 @@ const FriendsPage = () => {
 
     const handleReject = async (connectionId) => {
         try {
-            await axios.post(`http://localhost:8000/api/users/connections/${connectionId}/reject/`, {}, {
+            await axios.post(`${API_BASE_URL}/users/connections/${connectionId}/reject/`, {}, {
                 withCredentials: true
             });
             setSuccess('Friend request rejected');
@@ -102,7 +103,7 @@ const FriendsPage = () => {
         if (!window.confirm('Remove this friend?')) return;
 
         try {
-            await axios.delete(`http://localhost:8000/api/users/connections/${connectionId}/remove/`, {
+            await axios.delete(`${API_BASE_URL}/users/connections/${connectionId}/remove/`, {
                 withCredentials: true
             });
             setSuccess('Friend removed');

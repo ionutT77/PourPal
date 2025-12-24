@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { getHangouts } from '../../services/api';
+import { getHangouts, API_BASE_URL } from '../../services/api';
 import './HangoutList.css';
 import HangoutFilters from './HangoutFilters';
 
@@ -38,7 +38,7 @@ const HangoutList = () => {
 
             const [hangoutsRes, recommendedRes] = await Promise.all([
                 getHangouts(params),
-                axios.get('http://localhost:8000/api/hangouts/recommended/', { withCredentials: true })
+                axios.get(`${API_BASE_URL}/hangouts/recommended/`, { withCredentials: true })
             ]);
 
             setHangouts(hangoutsRes.data);
