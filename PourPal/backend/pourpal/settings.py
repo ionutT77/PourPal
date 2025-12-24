@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 import os
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'your-secret-key-here'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-here')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',') if os.environ.get('ALLOWED_HOSTS') else []
 
 # Application definition
 INSTALLED_APPS = [
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -77,45 +79,34 @@ WSGI_APPLICATION = 'pourpal.wsgi.application'
 # ASGI Application for Django Channels
 ASGI_APPLICATION = 'pourpal.asgi.application'
 
-# Channel Layers (In-Memory for development - no Redis needed)
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}
+# Channel Layers
+REDIS_URL = os.environ.get('REDIS_URL')
 
-# For production with Redis, use this instead:
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": [('127.0.0.1', 6379)],
-#         },
-#     },
-# }
+if REDIS_URL:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [REDIS_URL],
+            },
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        },
+    }
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-# Use SQLite for development (comment out PostgreSQL)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600
+    )
 }
-
-# PostgreSQL configuration (use this later for production)
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'pourpal_db',
-#         'USER': 'your_db_user',
-#         'PASSWORD': 'your_db_password',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -192,6 +183,11 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False
 
+# Add production origins from env
+if os.environ.get('FRONTEND_URL'):
+    frontend_url = os.environ.get('FRONTEND_URL').rstrip('/')
+    CORS_ALLOWED_ORIGINS.append(frontend_url)
+    
 # Allow all methods for API
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -220,8 +216,26 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
 ]
 
+if os.environ.get('FRONTEND_URL'):
+    CSRF_TRUSTED_ORIGINS.append(os.environ.get('FRONTEND_URL'))
+
 # CSRF Cookie settings for cross-origin
-CSRF_COOKIE_SAMESITE = 'Lax'
+# CSRF Cookie settings for cross-origin
+if not DEBUG:
+    CSRF_COOKIE_SAMESITE = 'None'
+    SESSION_COOKIE_SAMESITE = 'None'
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+else:
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
+
 CSRF_COOKIE_HTTPONLY = False
-SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_HTTPONLY = True
+
+# Static files storage for WhiteNoise
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

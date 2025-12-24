@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../../services/api';
 import './ReportModal.css';
 
 const ReportModal = ({ isOpen, onClose, reportedUserId, reportedUserName }) => {
@@ -37,7 +38,7 @@ const ReportModal = ({ isOpen, onClose, reportedUserId, reportedUserName }) => {
 
         try {
             await axios.post(
-                'http://localhost:8000/api/users/reports/',
+                `${API_BASE_URL}/users/reports/`,
                 {
                     reported_user: reportedUserId,
                     reason: reason,

@@ -4,6 +4,7 @@ import axios from 'axios';
 import ReportButton from '../Report/ReportButton';
 import ConnectionButton from '../Friends/ConnectionButton';
 import './PublicProfile.css';
+import { API_BASE_URL } from '../../services/api';
 
 const PublicProfile = () => {
     const { userId } = useParams();
@@ -17,7 +18,7 @@ const PublicProfile = () => {
 
     const fetchPublicProfile = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/users/profile/${userId}/`, {
+            const response = await axios.get(`${API_BASE_URL}/users/profile/${userId}/`, {
                 withCredentials: true
             });
             setProfile(response.data);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { logoutUser } from '../../services/api';
+import { logoutUser, API_BASE_URL } from '../../services/api';
 import axios from 'axios';
 import './Navbar.css';
 
@@ -23,7 +23,7 @@ const Navbar = () => {
 
     const fetchProfileData = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/users/profile/', {
+            const response = await axios.get(`${API_BASE_URL}/users/profile/`, {
                 withCredentials: true
             });
             setProfileData(response.data);
@@ -34,7 +34,7 @@ const Navbar = () => {
 
     const fetchUnreadCount = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/chat/private/conversations/', {
+            const response = await axios.get(`${API_BASE_URL}/chat/private/conversations/`, {
                 withCredentials: true
             });
             const total = response.data.reduce((sum, conv) => sum + conv.unread_count, 0);

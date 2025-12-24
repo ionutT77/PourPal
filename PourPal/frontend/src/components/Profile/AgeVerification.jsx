@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AgeVerification.css';
+import { API_BASE_URL } from '../../services/api';
 
 const AgeVerification = () => {
     const [verification, setVerification] = useState(null);
@@ -17,7 +18,7 @@ const AgeVerification = () => {
     const fetchVerificationStatus = async () => {
         try {
             const response = await axios.get(
-                'http://localhost:8000/api/users/age-verification/status/',
+                `${API_BASE_URL}/users/age-verification/status/`,
                 { withCredentials: true }
             );
             if (response.data.status !== 'not_uploaded') {
@@ -69,7 +70,7 @@ const AgeVerification = () => {
 
         try {
             const response = await axios.post(
-                'http://localhost:8000/api/users/age-verification/upload/',
+                `${API_BASE_URL}/users/age-verification/upload/`,
                 formData,
                 {
                     withCredentials: true,

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './HangoutMemoryUpload.css';
+import { API_BASE_URL } from '../../services/api';
 
 const HangoutMemoryUpload = ({ hangoutId, isParticipant }) => {
     const [memories, setMemories] = useState([]);
@@ -19,7 +20,7 @@ const HangoutMemoryUpload = ({ hangoutId, isParticipant }) => {
     const fetchMemories = async () => {
         try {
             const response = await axios.get(
-                `http://localhost:8000/api/hangouts/${hangoutId}/memories/`,
+                `${API_BASE_URL}/hangouts/${hangoutId}/memories/`,
                 { withCredentials: true }
             );
             setMemories(response.data.photos || []);
@@ -77,7 +78,7 @@ const HangoutMemoryUpload = ({ hangoutId, isParticipant }) => {
 
         try {
             const response = await axios.post(
-                `http://localhost:8000/api/hangouts/${hangoutId}/memories/upload/`,
+                `${API_BASE_URL}/hangouts/${hangoutId}/memories/upload/`,
                 formData,
                 {
                     withCredentials: true,
@@ -109,7 +110,7 @@ const HangoutMemoryUpload = ({ hangoutId, isParticipant }) => {
 
         try {
             await axios.delete(
-                `http://localhost:8000/api/hangouts/${hangoutId}/memories/${photoId}/delete/`,
+                `${API_BASE_URL}/hangouts/${hangoutId}/memories/${photoId}/delete/`,
                 { withCredentials: true }
             );
 

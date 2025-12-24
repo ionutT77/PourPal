@@ -45,8 +45,8 @@ class HangoutListCreateView(generics.ListCreateAPIView):
             queryset = queryset.filter(date_time__date__lte=end_date)
             
         # Exclude hangouts the user has already joined or created (Discovery Mode)
-        if self.request.user.is_authenticated:
-            queryset = queryset.exclude(participants=self.request.user)
+        # if self.request.user.is_authenticated:
+        #     queryset = queryset.exclude(participants=self.request.user)
             
         return queryset
 
