@@ -39,7 +39,7 @@ const GroupChat = ({ hangoutId }) => {
 
     // WebSocket connection
     useEffect(() => {
-        const websocket = new WebSocket(`${WS_BASE_URL}/chat/${hangoutId}/`);
+        const websocket = new WebSocket(`${WS_BASE_URL}/ws/chat/${hangoutId}/`);
 
         websocket.onopen = () => {
             console.log('WebSocket connected');
