@@ -164,12 +164,24 @@ const HangoutDetails = () => {
                     <div className="participants-list">
                         {hangout.participants.map((participant) => (
                             <div key={participant.id} className="participant-item">
-                                <span className="participant-name">
-                                    {participant.first_name}
-                                    {participant.id === hangout.creator.id && (
-                                        <span className="creator-badge">Creator</span>
-                                    )}
-                                </span>
+                                {participant.id === user?.id ? (
+                                    <span className="participant-name">
+                                        {participant.first_name} (You)
+                                        {participant.id === hangout.creator.id && (
+                                            <span className="creator-badge">Creator</span>
+                                        )}
+                                    </span>
+                                ) : (
+                                    <Link
+                                        to={`/profile/${participant.id}`}
+                                        className="participant-name participant-link"
+                                    >
+                                        {participant.first_name}
+                                        {participant.id === hangout.creator.id && (
+                                            <span className="creator-badge">Creator</span>
+                                        )}
+                                    </Link>
+                                )}
                             </div>
                         ))}
                     </div>

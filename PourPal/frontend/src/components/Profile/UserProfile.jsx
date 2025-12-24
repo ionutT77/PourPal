@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import AgeVerification from './AgeVerification';
+import ReportButton from '../Report/ReportButton';
 import './UserProfile.css';
 
 const PREDEFINED_HOBBIES = [
@@ -310,12 +311,21 @@ const UserProfile = () => {
         <div className="profile-container">
             <div className="profile-header">
                 <h1>👤 My Profile</h1>
-                <button
-                    className="edit-toggle-btn"
-                    onClick={() => setIsEditing(!isEditing)}
-                >
-                    {isEditing ? '❌ Cancel' : '✏️ Edit Profile'}
-                </button>
+                <div className="profile-header-actions">
+                    {!isEditing && user && (
+                        <ReportButton
+                            userId={user.id}
+                            userName={user.first_name}
+                            className="small"
+                        />
+                    )}
+                    <button
+                        className="edit-toggle-btn"
+                        onClick={() => setIsEditing(!isEditing)}
+                    >
+                        {isEditing ? '❌ Cancel' : '✏️ Edit Profile'}
+                    </button>
+                </div>
             </div>
 
             {/* Profile Completion Progress */}

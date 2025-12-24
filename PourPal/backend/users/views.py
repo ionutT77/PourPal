@@ -6,14 +6,20 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.utils import timezone
-from .models import User, Profile, ProfilePhoto, AgeVerification
+from django.db import models
+from .models import User, Profile, ProfilePhoto, AgeVerification, Report, Connection
 from .serializers import (
     UserSerializer, 
     UserRegistrationSerializer, 
     UserLoginSerializer,
     ProfileSerializer,
     ProfilePhotoSerializer,
-    AgeVerificationSerializer
+    AgeVerificationSerializer,
+    ReportSerializer,
+    ReportListSerializer,
+    PublicProfileSerializer,
+    ConnectionSerializer,
+    UserSearchSerializer
 )
 
 
@@ -295,3 +301,274 @@ class AgeVerificationRejectView(APIView):
             return Response({
                 'error': 'Verification not found'
             }, status=status.HTTP_404_NOT_FOUND)
+
+
+# ========== REPORT SYSTEM VIEWS ==========
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ReportCreateView(APIView):
+    """API endpoint for submitting a report"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        serializer = ReportSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(reporter=request.user)
+            return Response({
+                'message': 'Report submitted successfully',
+                'report': serializer.data
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ReportListView(APIView):
+    """API endpoint for listing all reports (admin only)"""
+    permission_classes = [permissions.IsAdminUser]
+    
+    def get(self, request):
+        # Filter by status if provided
+        status_filter = request.query_params.get('status', None)
+        
+        if status_filter:
+            reports = Report.objects.filter(status=status_filter)
+        else:
+            reports = Report.objects.all()
+        
+        serializer = ReportListSerializer(reports, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ReportDetailView(APIView):
+    """API endpoint for viewing a specific report (admin only)"""
+    permission_classes = [permissions.IsAdminUser]
+    
+    def get(self, request, report_id):
+        try:
+            report = Report.objects.get(id=report_id)
+            serializer = ReportListSerializer(report)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Report.DoesNotExist:
+            return Response({
+                'error': 'Report not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ReportUpdateStatusView(APIView):
+    """API endpoint for updating report status (admin only)"""
+    permission_classes = [permissions.IsAdminUser]
+    
+    def patch(self, request, report_id):
+        try:
+            report = Report.objects.get(id=report_id)
+            new_status = request.data.get('status')
+            admin_notes = request.data.get('admin_notes', '')
+            
+            if new_status not in ['under_review', 'resolved', 'dismissed']:
+                return Response({
+                    'error': 'Invalid status. Must be: under_review, resolved, or dismissed'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Update report using helper methods
+            if new_status == 'under_review':
+                report.mark_under_review(request.user)
+            elif new_status == 'resolved':
+                report.resolve(request.user, admin_notes)
+            elif new_status == 'dismissed':
+                report.dismiss(request.user, admin_notes)
+            
+            serializer = ReportListSerializer(report)
+            return Response({
+                'message': f'Report status updated to {new_status}',
+                'report': serializer.data
+            }, status=status.HTTP_200_OK)
+            
+        except Report.DoesNotExist:
+            return Response({
+                'error': 'Report not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class MyReportsView(APIView):
+    """API endpoint for viewing user's own submitted reports"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        reports = Report.objects.filter(reporter=request.user)
+        serializer = ReportSerializer(reports, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# ========== PUBLIC PROFILE VIEW ==========
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PublicProfileView(APIView):
+    """API endpoint for viewing other users' public profiles"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request, user_id):
+        try:
+            # Prevent viewing own profile through this endpoint
+            if request.user.id == user_id:
+                return Response({
+                    'error': 'Use /api/users/profile/ to view your own profile'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Get the user's profile
+            user = User.objects.get(id=user_id)
+            profile = user.profile
+            
+            serializer = PublicProfileSerializer(profile, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+        except User.DoesNotExist:
+            return Response({
+                'error': 'User not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Profile.DoesNotExist:
+            return Response({
+                'error': 'Profile not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+
+
+# ========== CONNECTION/FRIEND SYSTEM ==========
+
+@method_decorator(csrf_exempt, name='dispatch')
+class SendConnectionRequestView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, user_id):
+        if request.user.id == user_id:
+            return Response({'error': 'Cannot send friend request to yourself'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            friend = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if connection already exists
+        existing = Connection.objects.filter(
+            models.Q(user=request.user, friend=friend) | 
+            models.Q(user=friend, friend=request.user)
+        ).first()
+        
+        if existing:
+            return Response({'error': f'Connection already exists with status: {existing.status}'}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+        
+        connection = Connection.objects.create(user=request.user, friend=friend)
+        serializer = ConnectionSerializer(connection, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AcceptConnectionView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, connection_id):
+        try:
+            connection = Connection.objects.get(id=connection_id, friend=request.user, status='pending')
+        except Connection.DoesNotExist:
+            return Response({'error': 'Connection request not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        connection.accept()
+        serializer = ConnectionSerializer(connection, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class RejectConnectionView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, connection_id):
+        try:
+            connection = Connection.objects.get(id=connection_id, friend=request.user, status='pending')
+        except Connection.DoesNotExist:
+            return Response({'error': 'Connection request not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        connection.reject()
+        serializer = ConnectionSerializer(connection, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ListFriendsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        # Get accepted connections where user is either sender or receiver
+        connections = Connection.objects.filter(
+            models.Q(user=request.user, status='accepted') | 
+            models.Q(friend=request.user, status='accepted')
+        )
+        
+        friends_data = []
+        for conn in connections:
+            friend = conn.friend if conn.user == request.user else conn.user
+            friends_data.append({
+                'id': friend.id,
+                'first_name': friend.first_name,
+                'username': friend.username,
+                'connection_id': conn.id
+            })
+        
+        return Response(friends_data, status=status.HTTP_200_OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PendingRequestsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        pending = Connection.objects.filter(friend=request.user, status='pending')
+        serializer = ConnectionSerializer(pending, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class RemoveConnectionView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def delete(self, request, connection_id):
+        try:
+            connection = Connection.objects.filter(
+                models.Q(user=request.user) | models.Q(friend=request.user)
+            ).get(id=connection_id)
+        except Connection.DoesNotExist:
+            return Response({'error': 'Connection not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        connection.delete()
+        return Response({'message': 'Connection removed'}, status=status.HTTP_200_OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class SearchUsersView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        query = request.GET.get('username', '')
+        if len(query) < 2:
+            return Response({'error': 'Search query must be at least 2 characters'}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+        
+        users = User.objects.filter(username__icontains=query).exclude(id=request.user.id)[:10]
+        serializer = UserSearchSerializer(users, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ConnectionStatusView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        status_info = Connection.get_connection_status(request.user, user)
+        return Response(status_info, status=status.HTTP_200_OK)

@@ -62,12 +62,18 @@ const Navbar = () => {
                             <Link to="/hangouts" className="navbar-link">
                                 Hangouts
                             </Link>
+                            <Link to="/friends" className="navbar-link">
+                                Friends
+                            </Link>
                             <Link to="/create-hangout" className="navbar-link">
                                 Create Hangout
                             </Link>
                             <button onClick={handleLogout} className="navbar-button">
                                 Logout
                             </button>
+                            <Link to="/privacy-policy" className="navbar-link navbar-link-small">
+                                Privacy
+                            </Link>
 
                             {/* Profile Picture with Progress Ring */}
                             <Link to="/profile" className="profile-avatar-container">

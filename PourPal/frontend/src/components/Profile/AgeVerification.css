@@ -144,7 +144,7 @@
 }
 
 .file-input-wrapper {
-    margin: 20px 0;
+    flex: 1;
 }
 
 #document-upload {
@@ -162,6 +162,8 @@
     transition: all 0.3s ease;
     font-size: 1rem;
     font-weight: 500;
+    width: 100%;
+    text-align: center;
 }
 
 .file-input-label:hover {
@@ -169,10 +171,16 @@
     border-color: #667eea;
 }
 
-.upload-btn {
-    width: 100%;
-    padding: 15px;
+.buttons-container {
+    display: flex;
+    gap: 20px;
+    align-items: center;
     margin-top: 20px;
+}
+
+.upload-btn {
+    flex: 1;
+    padding: 15px;
     border: none;
     border-radius: 25px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

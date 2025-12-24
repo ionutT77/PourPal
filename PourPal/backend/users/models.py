@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 class User(AbstractUser):
     """
@@ -226,3 +227,151 @@ class AgeVerification(models.Model):
     def is_verified(self):
         """Quick check if verification is approved"""
         return self.status == 'approved'
+
+
+class Report(models.Model):
+    """
+    User reports for flagging suspicious or inappropriate profiles.
+    """
+    REASON_CHOICES = [
+        ('inappropriate', 'Inappropriate Content'),
+        ('harassment', 'Harassment or Bullying'),
+        ('fake', 'Fake Profile'),
+        ('spam', 'Spam'),
+        ('underage', 'Underage User'),
+        ('other', 'Other'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('under_review', 'Under Review'),
+        ('resolved', 'Resolved'),
+        ('dismissed', 'Dismissed'),
+    ]
+    
+    reporter = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='reports_made',
+        help_text="User who submitted the report"
+    )
+    reported_user = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='reports_received',
+        help_text="User being reported"
+    )
+    reason = models.CharField(
+        max_length=20, 
+        choices=REASON_CHOICES,
+        help_text="Reason for the report"
+    )
+    description = models.TextField(
+        help_text="Detailed description of the issue"
+    )
+    status = models.CharField(
+        max_length=20, 
+        choices=STATUS_CHOICES, 
+        default='pending'
+    )
+    admin_notes = models.TextField(
+        blank=True,
+        help_text="Internal notes for admin review"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='reports_reviewed',
+        help_text="Admin who reviewed the report"
+    )
+    
+    class Meta:
+        verbose_name = "Report"
+        verbose_name_plural = "Reports"
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status', '-created_at']),
+            models.Index(fields=['reported_user', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"Report by {self.reporter.email} against {self.reported_user.email}"
+    
+    def mark_under_review(self, admin_user):
+        """Mark report as under review"""
+        self.status = 'under_review'
+        self.reviewed_by = admin_user
+        self.reviewed_at = timezone.now()
+        self.save()
+    
+    def resolve(self, admin_user, notes=''):
+        """Mark report as resolved"""
+        self.status = 'resolved'
+        self.reviewed_by = admin_user
+        self.reviewed_at = timezone.now()
+        if notes:
+            self.admin_notes = notes
+        self.save()
+    
+    def dismiss(self, admin_user, notes=''):
+        """Dismiss the report"""
+        self.status = 'dismissed'
+        self.reviewed_by = admin_user
+        self.reviewed_at = timezone.now()
+        if notes:
+            self.admin_notes = notes
+        self.save()
+
+class Connection(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_connections')
+    friend = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_connections')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ('user', 'friend')
+        indexes = [
+            models.Index(fields=['user', 'status']),
+            models.Index(fields=['friend', 'status']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.first_name} -> {self.friend.first_name} ({self.status})"
+    
+    def accept(self):
+        self.status = 'accepted'
+        self.save()
+    
+    def reject(self):
+        self.status = 'rejected'
+        self.save()
+    
+    @classmethod
+    def are_friends(cls, user1, user2):
+        return cls.objects.filter(
+            models.Q(user=user1, friend=user2, status='accepted') |
+            models.Q(user=user2, friend=user1, status='accepted')
+        ).exists()
+    
+    @classmethod
+    def get_connection_status(cls, user1, user2):
+        sent = cls.objects.filter(user=user1, friend=user2).first()
+        if sent:
+            return {'status': sent.status, 'direction': 'sent', 'connection_id': sent.id}
+        
+        received = cls.objects.filter(user=user2, friend=user1).first()
+        if received:
+            return {'status': received.status, 'direction': 'received', 'connection_id': received.id}
+        
+        return {'status': 'none', 'direction': None, 'connection_id': None}

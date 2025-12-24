@@ -152,29 +152,31 @@ const AgeVerification = () => {
                         </div>
                     )}
 
-                    <div className="file-input-wrapper">
-                        <input
-                            type="file"
-                            id="document-upload"
-                            accept="image/*"
-                            onChange={handleFileSelect}
-                            disabled={uploading}
-                        />
-                        <label htmlFor="document-upload" className="file-input-label">
-                            📄 {selectedFile ? selectedFile.name : 'Choose Document'}
-                        </label>
-                    </div>
-
                     {error && <div className="error-message">{error}</div>}
                     {success && <div className="success-message">{success}</div>}
 
-                    <button
-                        className="upload-btn"
-                        onClick={handleUpload}
-                        disabled={!selectedFile || uploading}
-                    >
-                        {uploading ? 'Uploading...' : 'Upload Document'}
-                    </button>
+                    <div className="buttons-container">
+                        <div className="file-input-wrapper">
+                            <input
+                                type="file"
+                                id="document-upload"
+                                accept="image/*"
+                                onChange={handleFileSelect}
+                                disabled={uploading}
+                            />
+                            <label htmlFor="document-upload" className="file-input-label">
+                                📄 {selectedFile ? selectedFile.name : 'Choose Document'}
+                            </label>
+                        </div>
+
+                        <button
+                            className="upload-btn"
+                            onClick={handleUpload}
+                            disabled={!selectedFile || uploading}
+                        >
+                            {uploading ? 'Uploading...' : 'Upload Document'}
+                        </button>
+                    </div>
 
                     <div className="privacy-note">
                         <small>

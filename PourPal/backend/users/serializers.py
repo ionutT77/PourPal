@@ -2,7 +2,7 @@ import re
 from rest_framework import serializers
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError as DjangoValidationError
-from .models import User, Profile, ProfilePhoto, AgeVerification, PREDEFINED_HOBBIES
+from .models import User, Profile, ProfilePhoto, AgeVerification, Report, Connection, PREDEFINED_HOBBIES
 
 
 class ProfilePhotoSerializer(serializers.ModelSerializer):
@@ -169,3 +169,99 @@ class AgeVerificationSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.document.url)
             return obj.document.url
         return None
+
+
+class ReportSerializer(serializers.ModelSerializer):
+    """Serializer for creating reports"""
+    reporter_name = serializers.SerializerMethodField(read_only=True)
+    reported_user_name = serializers.SerializerMethodField(read_only=True)
+    
+    class Meta:
+        model = Report
+        fields = [
+            'id', 'reporter', 'reported_user', 'reason', 'description',
+            'status', 'created_at', 'reporter_name', 'reported_user_name'
+        ]
+        read_only_fields = ['id', 'reporter', 'status', 'created_at']
+    
+    def get_reporter_name(self, obj):
+        return obj.reporter.first_name if obj.reporter else None
+    
+    def get_reported_user_name(self, obj):
+        return obj.reported_user.first_name if obj.reported_user else None
+    
+    def validate(self, data):
+        """Prevent users from reporting themselves"""
+        request = self.context.get('request')
+        if request and request.user == data.get('reported_user'):
+            raise serializers.ValidationError("You cannot report yourself.")
+        return data
+
+
+class ReportListSerializer(serializers.ModelSerializer):
+    """Serializer for listing reports (admin view)"""
+    reporter_email = serializers.EmailField(source='reporter.email', read_only=True)
+    reporter_name = serializers.CharField(source='reporter.first_name', read_only=True)
+    reported_user_email = serializers.EmailField(source='reported_user.email', read_only=True)
+    reported_user_name = serializers.CharField(source='reported_user.first_name', read_only=True)
+    reviewed_by_name = serializers.CharField(source='reviewed_by.first_name', read_only=True, allow_null=True)
+    
+    class Meta:
+        model = Report
+        fields = [
+            'id', 'reporter_email', 'reporter_name', 'reported_user_email', 
+            'reported_user_name', 'reason', 'description', 'status', 
+            'admin_notes', 'created_at', 'reviewed_at', 'reviewed_by_name'
+        ]
+        read_only_fields = ['id', 'created_at']
+
+
+class PublicProfileSerializer(serializers.ModelSerializer):
+    """Serializer for viewing other users' profiles (filtered data)"""
+    photos = ProfilePhotoSerializer(many=True, read_only=True)
+    photo_count = serializers.ReadOnlyField()
+    primary_photo_url = serializers.SerializerMethodField()
+    user_name = serializers.CharField(source='user.first_name', read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+    
+    class Meta:
+        model = Profile
+        fields = [
+            'user_id', 'user_name', 'bio', 'age', 'interests', 'hobbies',
+            'photos', 'photo_count', 'primary_photo_url'
+        ]
+    
+    def get_primary_photo_url(self, obj):
+        primary = obj.primary_photo
+        if primary and primary.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(primary.image.url)
+            return primary.image.url
+        return None
+
+
+class ConnectionSerializer(serializers.ModelSerializer):
+    user_name = serializers.CharField(source='user.first_name', read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+    friend_name = serializers.CharField(source='friend.first_name', read_only=True)
+    friend_id = serializers.IntegerField(source='friend.id', read_only=True)
+    
+    class Meta:
+        model = Connection
+        fields = ['id', 'user_id', 'user_name', 'friend_id', 'friend_name', 'status', 'created_at']
+        read_only_fields = ['id', 'created_at', 'status']
+
+
+class UserSearchSerializer(serializers.ModelSerializer):
+    connection_status = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'username', 'connection_status']
+    
+    def get_connection_status(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return Connection.get_connection_status(request.user, obj)
+        return {'status': 'none', 'direction': None, 'connection_id': None}
