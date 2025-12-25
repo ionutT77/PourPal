@@ -46,7 +46,9 @@ const HangoutDetails = () => {
             fetchHangoutDetails();
         } catch (err) {
             console.error('Error joining hangout:', err);
-            setError(err.response?.data?.error || 'Failed to join hangout');
+            const errorMessage = err.response?.data?.error || 'Failed to join hangout';
+            setError(errorMessage);
+            setTimeout(() => setError(''), 5000);
         }
     };
 

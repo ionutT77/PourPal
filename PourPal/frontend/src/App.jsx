@@ -21,8 +21,13 @@ const AppContent = () => {
 
     return (
         <>
-            {/* Show navbar only for authenticated users or on auth/privacy pages */}
-            <Route path={['/login', '/register', '/privacy-policy', '/hangouts', '/create-hangout', '/profile', '/friends', '/messages', '/chat']} component={Navbar} />
+            {/* Show navbar for authenticated users or on auth/privacy pages */}
+            <Route path="/">
+                {({ location }) => {
+                    const isLandingPage = location.pathname === '/' && !isAuthenticated;
+                    return !isLandingPage ? <Navbar /> : null;
+                }}
+            </Route>
 
             <Switch>
                 <Route path="/login" component={Login} />
