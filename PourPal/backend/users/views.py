@@ -93,6 +93,17 @@ class ProfileUpdateView(generics.RetrieveUpdateAPIView):
     
     def get_object(self):
         return self.request.user.profile
+    
+    def update(self, request, *args, **kwargs):
+        # Handle first_name separately as it belongs to User model
+        first_name = request.data.get('first_name')
+        if first_name:
+            user = request.user
+            user.first_name = first_name
+            user.save()
+        
+        # Continue with normal profile update
+        return super().update(request, *args, **kwargs)
 
 
 @method_decorator(csrf_exempt, name='dispatch')

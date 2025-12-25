@@ -30,6 +30,7 @@ const UserProfile = () => {
 
     // Form state
     const [formData, setFormData] = useState({
+        first_name: '',
         bio: '',
         age: '',
         interests: [],
@@ -61,6 +62,7 @@ const UserProfile = () => {
             setProfile(response.data);
             setPhotos(response.data.photos || []);
             setFormData({
+                first_name: response.data.user?.first_name || user?.first_name || '',
                 bio: response.data.bio || '',
                 age: response.data.age || '',
                 interests: response.data.interests || [],
@@ -434,8 +436,11 @@ const UserProfile = () => {
                         <label>Name</label>
                         <input
                             type="text"
-                            value={user?.first_name || ''}
-                            disabled
+                            name="first_name"
+                            value={formData.first_name}
+                            onChange={handleInputChange}
+                            disabled={!isEditing}
+                            placeholder="Your name"
                         />
                     </div>
                     <div className="form-field">
