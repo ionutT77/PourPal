@@ -141,11 +141,18 @@
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .participant-item:hover {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(102, 126, 234, 0.3);
+}
+
+.participant-info {
+    flex: 1;
 }
 
 .participant-name {
@@ -230,6 +237,25 @@
 .end-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+}
+
+.kick-btn {
+    padding: 8px 16px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.kick-btn:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.5);
+    transform: translateY(-1px);
 }
 
 /* Responsive Design */

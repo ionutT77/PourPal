@@ -90,6 +90,27 @@ const HangoutDetails = () => {
         }
     };
 
+    const handleKick = async (userId, userName) => {
+        if (!window.confirm(`Are you sure you want to remove ${userName} from this hangout?`)) {
+            return;
+        }
+
+        try {
+            await axios.post(
+                `${API_BASE_URL}/hangouts/${id}/kick/`,
+                { user_id: userId },
+                { withCredentials: true }
+            );
+            setSuccess(`Successfully removed ${userName} from the hangout`);
+            setTimeout(() => setSuccess(''), 3000);
+            fetchHangoutDetails();
+        } catch (err) {
+            console.error('Error kicking participant:', err);
+            setError(err.response?.data?.error || 'Failed to remove participant');
+            setTimeout(() => setError(''), 3000);
+        }
+    };
+
     if (loading) {
         return <div className="hangout-details-loading">Loading hangout details...</div>;
     }
@@ -165,23 +186,35 @@ const HangoutDetails = () => {
                     <div className="participants-list">
                         {hangout.participants.map((participant) => (
                             <div key={participant.id} className="participant-item">
-                                {participant.id === user?.id ? (
-                                    <span className="participant-name">
-                                        {participant.first_name} (You)
-                                        {participant.id === hangout.creator.id && (
-                                            <span className="creator-badge">Creator</span>
-                                        )}
-                                    </span>
-                                ) : (
-                                    <Link
-                                        to={`/profile/${participant.id}`}
-                                        className="participant-name participant-link"
+                                <div className="participant-info">
+                                    {participant.id === user?.id ? (
+                                        <span className="participant-name">
+                                            {participant.first_name} (You)
+                                            {participant.id === hangout.creator.id && (
+                                                <span className="creator-badge">Creator</span>
+                                            )}
+                                        </span>
+                                    ) : (
+                                        <Link
+                                            to={`/profile/${participant.id}`}
+                                            className="participant-name participant-link"
+                                        >
+                                            {participant.first_name}
+                                            {participant.id === hangout.creator.id && (
+                                                <span className="creator-badge">Creator</span>
+                                            )}
+                                        </Link>
+                                    )}
+                                </div>
+                                {/* Show kick button only for creator and not for themselves */}
+                                {isCreator && participant.id !== hangout.creator.id && !hangout.is_ended && (
+                                    <button
+                                        className="kick-btn"
+                                        onClick={() => handleKick(participant.id, participant.first_name)}
+                                        title="Remove participant"
                                     >
-                                        {participant.first_name}
-                                        {participant.id === hangout.creator.id && (
-                                            <span className="creator-badge">Creator</span>
-                                        )}
-                                    </Link>
+                                        ✕ Kick
+                                    </button>
                                 )}
                             </div>
                         ))}

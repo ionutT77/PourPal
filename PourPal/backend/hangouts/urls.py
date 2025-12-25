@@ -9,7 +9,8 @@ from .views import (
     delete_memory_photo,
     get_hangout_memories,
     end_hangout,
-    get_recommended_hangouts
+    get_recommended_hangouts,
+    kick_participant
 )
 
 urlpatterns = [
@@ -18,6 +19,7 @@ urlpatterns = [
     path('<int:pk>/join/', join_hangout, name='hangout-join'),
     path('<int:pk>/leave/', leave_hangout, name='hangout-leave'),
     path('<int:pk>/end/', end_hangout, name='hangout-end'),
+    path('<int:pk>/kick/', kick_participant, name='hangout-kick'),
     path('my-hangouts/', my_hangouts, name='my-hangouts'),
     path('recommended/', get_recommended_hangouts, name='recommended-hangouts'),
     path('<int:pk>/memories/', get_hangout_memories, name='hangout-memories'),

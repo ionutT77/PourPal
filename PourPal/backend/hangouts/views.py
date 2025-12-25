@@ -367,3 +367,58 @@ def get_recommended_hangouts(request):
         'recommended': HangoutSerializer(recommended, many=True).data,
         'categories': preferred_categories
     }, status=status.HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def kick_participant(request, pk):
+    """API endpoint for kicking a participant from a hangout"""
+    try:
+        hangout = Hangout.objects.get(pk=pk)
+    except Hangout.DoesNotExist:
+        return Response({
+            'error': 'Hangout not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Only creator can kick participants
+    if hangout.creator != request.user:
+        return Response({
+            'error': 'Only the creator can kick participants'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
+    # Get user_id from request data
+    user_id = request.data.get('user_id')
+    if not user_id:
+        return Response({
+            'error': 'user_id is required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Get the user to kick
+    from users.models import User
+    try:
+        user_to_kick = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Response({
+            'error': 'User not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Cannot kick the creator
+    if user_to_kick == hangout.creator:
+        return Response({
+            'error': 'Cannot kick the creator'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Check if user is a participant
+    if user_to_kick not in hangout.participants.all():
+        return Response({
+            'error': 'User is not a participant in this hangout'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Remove the user from participants
+    hangout.participants.remove(user_to_kick)
+    
+    return Response({
+        'message': f'Successfully removed {user_to_kick.first_name} from the hangout',
+        'hangout': HangoutSerializer(hangout).data
+    }, status=status.HTTP_200_OK)
