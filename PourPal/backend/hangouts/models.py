@@ -42,6 +42,11 @@ class Hangout(models.Model):
         related_name='joined_hangouts',
         blank=True
     )
+    kicked_users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='kicked_from_hangouts',
+        blank=True
+    )
     
     # Hangout status
     is_ended = models.BooleanField(default=False)

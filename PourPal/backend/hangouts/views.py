@@ -137,6 +137,12 @@ def join_hangout(request, pk):
             'error': 'Hangout not found'
         }, status=status.HTTP_404_NOT_FOUND)
     
+    # Check if user has been kicked from this hangout
+    if request.user in hangout.kicked_users.all():
+        return Response({
+            'error': "You've been kicked from this hangout"
+        }, status=status.HTTP_403_FORBIDDEN)
+    
     # Check if hangout is full
     if hangout.participants.count() >= hangout.max_group_size:
         return Response({
@@ -417,6 +423,9 @@ def kick_participant(request, pk):
     
     # Remove the user from participants
     hangout.participants.remove(user_to_kick)
+    
+    # Add user to kicked_users list to prevent rejoining
+    hangout.kicked_users.add(user_to_kick)
     
     return Response({
         'message': f'Successfully removed {user_to_kick.first_name} from the hangout',
