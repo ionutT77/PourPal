@@ -9,13 +9,14 @@ class HangoutSerializer(serializers.ModelSerializer):
     participants = UserSerializer(many=True, read_only=True)
     participant_count = serializers.SerializerMethodField()
     is_full = serializers.SerializerMethodField()
+    is_user_participant = serializers.SerializerMethodField()
     
     class Meta:
         model = Hangout
         fields = [
             'id', 'title', 'venue_location', 'latitude', 'longitude', 'date_time', 
             'max_group_size', 'description', 'category', 'creator', 
-            'participants', 'participant_count', 'is_full',
+            'participants', 'participant_count', 'is_full', 'is_user_participant',
             'is_ended', 'ended_at', 'auto_end_date',
             'created_at', 'updated_at'
         ]
@@ -26,6 +27,13 @@ class HangoutSerializer(serializers.ModelSerializer):
     
     def get_is_full(self, obj):
         return obj.participants.count() >= obj.max_group_size
+    
+    def get_is_user_participant(self, obj):
+        """Check if the current user is a participant in this hangout"""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.participants.filter(id=request.user.id).exists()
+        return False
 
 
 class HangoutCreateSerializer(serializers.ModelSerializer):

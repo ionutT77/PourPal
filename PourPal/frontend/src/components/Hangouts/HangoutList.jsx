@@ -102,7 +102,7 @@ const HangoutList = () => {
                                     <Link
                                         key={hangout.id}
                                         to={`/hangouts/${hangout.id}`}
-                                        className="hangout-card recommended-card"
+                                        className={`hangout-card recommended-card ${hangout.is_user_participant ? 'joined' : ''}`}
                                     >
                                         <div className="recommended-badge">Recommended</div>
                                         <div className="hangout-card-header">
@@ -111,6 +111,9 @@ const HangoutList = () => {
                                                 <span className="category-badge">
                                                     {categoryInfo.icon} {categoryInfo.label}
                                                 </span>
+                                                {hangout.is_user_participant && (
+                                                    <span className="joined-badge">Joined</span>
+                                                )}
                                             </div>
                                         </div>
                                         <p>{hangout.description}</p>
@@ -170,7 +173,7 @@ const HangoutList = () => {
                             <Link
                                 key={hangout.id}
                                 to={`/hangouts/${hangout.id}`}
-                                className={`hangout-card ${hangout.is_ended ? 'ended' : ''}`}
+                                className={`hangout-card ${hangout.is_ended ? 'ended' : ''} ${hangout.is_user_participant ? 'joined' : ''}`}
                             >
                                 <div className="hangout-card-header">
                                     <h3>{hangout.title}</h3>
@@ -178,6 +181,9 @@ const HangoutList = () => {
                                         <span className="category-badge">
                                             {categoryInfo.icon} {categoryInfo.label}
                                         </span>
+                                        {hangout.is_user_participant && (
+                                            <span className="joined-badge">Joined</span>
+                                        )}
                                         {hangout.is_ended && (
                                             <span className="ended-badge-small">Ended</span>
                                         )}
