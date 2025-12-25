@@ -439,6 +439,15 @@ const UserProfile = () => {
                         />
                     </div>
                     <div className="form-field">
+                        <label>Username</label>
+                        <input
+                            type="text"
+                            value={user?.username || ''}
+                            disabled
+                            title="Username cannot be changed"
+                        />
+                    </div>
+                    <div className="form-field">
                         <label>Age</label>
                         <input
                             type="number"
