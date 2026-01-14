@@ -83,15 +83,20 @@ ASGI_APPLICATION = 'pourpal.asgi.application'
 REDIS_URL = os.environ.get('REDIS_URL')
 
 if REDIS_URL:
+    # Configure for Upstash Redis with SSL
     CHANNEL_LAYERS = {
         'default': {
             'BACKEND': 'channels_redis.core.RedisChannelLayer',
             'CONFIG': {
-                "hosts": [REDIS_URL],
+                "hosts": [{
+                    "address": REDIS_URL,
+                    "ssl_cert_reqs": None,  # Disable SSL certificate verification for Upstash
+                }],
             },
         },
     }
 else:
+    # Fallback to in-memory channel layer for development
     CHANNEL_LAYERS = {
         'default': {
             'BACKEND': 'channels.layers.InMemoryChannelLayer',
