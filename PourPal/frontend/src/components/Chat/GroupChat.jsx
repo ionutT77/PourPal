@@ -115,16 +115,16 @@ const GroupChat = ({ hangoutId }) => {
                                 {!isCurrentUser && (
                                     <div className="message-avatar">
                                         {msg.user_photo ? (
-                                            <img src={msg.user_photo} alt={msg.user_name} />
+                                            <img src={msg.user_photo} alt={msg.user_name || 'User'} />
                                         ) : (
                                             <div className="avatar-placeholder">
-                                                {msg.user_name.charAt(0).toUpperCase()}
+                                                {msg.user_name && msg.user_name.charAt(0).toUpperCase() || '?'}
                                             </div>
                                         )}
                                     </div>
                                 )}
                                 <div className="message-content">
-                                    {!isCurrentUser && <div className="message-sender">{msg.user_name}</div>}
+                                    {!isCurrentUser && <div className="message-sender">{msg.user_name || 'Unknown User'}</div>}
                                     <div className="message-bubble">
                                         <p>{msg.message_text}</p>
                                         <span className="message-time">{formatTimestamp(msg.timestamp)}</span>
