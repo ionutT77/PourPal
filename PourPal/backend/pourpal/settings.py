@@ -178,6 +178,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:5173",  # Vite default port
     "ws://localhost:8000",    # WebSocket
+    "http://localhost:8000",  # Django dev server
 ]
 
 CORS_ALLOW_CREDENTIALS = True

@@ -9,30 +9,41 @@ User = get_user_model()
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.hangout_id = self.scope['url_route']['kwargs']['hangout_id']
-        self.room_group_name = f'chat_{self.hangout_id}'
-        
-        # Get user from scope (authenticated via AuthMiddlewareStack)
-        self.user = self.scope.get('user')
-        
-        # Check if user is authenticated
-        if not self.user or not self.user.is_authenticated:
-            await self.close()
-            return
-        
-        # Check if user is a participant
-        is_participant = await self.check_participant()
-        if not is_participant:
-            await self.close()
-            return
+        try:
+            self.hangout_id = self.scope['url_route']['kwargs']['hangout_id']
+            self.room_group_name = f'chat_{self.hangout_id}'
+            
+            # Get user from scope (authenticated via AuthMiddlewareStack)
+            self.user = self.scope.get('user')
+            
+            print(f"WebSocket connection attempt - User: {self.user}, Authenticated: {getattr(self.user, 'is_authenticated', False)}")
+            
+            # Check if user is authenticated
+            if not self.user or not self.user.is_authenticated:
+                print(f"WebSocket rejected - User not authenticated")
+                await self.close(code=4001)
+                return
+            
+            # Check if user is a participant
+            is_participant = await self.check_participant()
+            if not is_participant:
+                print(f"WebSocket rejected - User {self.user.id} not a participant of hangout {self.hangout_id}")
+                await self.close(code=4003)
+                return
 
-        # Join room group
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
+            # Join room group
+            await self.channel_layer.group_add(
+                self.room_group_name,
+                self.channel_name
+            )
 
-        await self.accept()
+            print(f"WebSocket connected - User {self.user.id} joined hangout {self.hangout_id}")
+            await self.accept()
+        except Exception as e:
+            print(f"WebSocket connection error: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            await self.close(code=4000)
 
     async def disconnect(self, close_code):
         # Leave room group
