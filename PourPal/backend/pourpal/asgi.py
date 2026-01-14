@@ -10,8 +10,6 @@ https://docs.djangoproject.com/en/4.0/howto/deployment/asgi/
 import os
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
-from channels.security.websocket import AllowedHostsOriginValidator
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pourpal.settings')
 
@@ -26,11 +24,9 @@ from channels.sessions import SessionMiddlewareStack
 
 application = ProtocolTypeRouter({
     "http": django_asgi_app,
-    "websocket": AllowedHostsOriginValidator(
-        TokenAuthMiddleware(
-            SessionMiddlewareStack(
-                URLRouter(websocket_urlpatterns)
-            )
+    "websocket": TokenAuthMiddleware(
+        SessionMiddlewareStack(
+            URLRouter(websocket_urlpatterns)
         )
     ),
 })

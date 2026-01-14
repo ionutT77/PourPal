@@ -188,6 +188,18 @@ CORS_ALLOW_ALL_ORIGINS = False
 if os.environ.get('FRONTEND_URL'):
     frontend_url = os.environ.get('FRONTEND_URL').rstrip('/')
     CORS_ALLOWED_ORIGINS.append(frontend_url)
+
+# Add backend WebSocket support for production
+# Get the backend URL from ALLOWED_HOSTS or construct from environment
+backend_hosts = os.environ.get('ALLOWED_HOSTS', '').split(',')
+for host in backend_hosts:
+    host = host.strip()
+    if host and host != '*':
+        # Add both https and wss protocols for production backend
+        if not host.startswith('http'):
+            CORS_ALLOWED_ORIGINS.append(f'https://{host}')
+            CORS_ALLOWED_ORIGINS.append(f'wss://{host}')
+
     
 # Allow all methods for API
 CORS_ALLOW_METHODS = [
