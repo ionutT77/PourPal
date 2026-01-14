@@ -13,7 +13,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.hangout_id = self.scope['url_route']['kwargs']['hangout_id']
             self.room_group_name = f'chat_{self.hangout_id}'
             
-            # Get user from scope (authenticated via AuthMiddlewareStack)
+            # ACCEPT CONNECTION FIRST to avoid 403 errors
+            await self.accept()
+            print(f"WebSocket accepted for hangout {self.hangout_id}")
+            
+            # Get user from scope (authenticated via TokenAuthMiddleware)
             self.user = self.scope.get('user')
             
             print(f"WebSocket connection attempt - User: {self.user}, Authenticated: {getattr(self.user, 'is_authenticated', False)}")
@@ -21,6 +25,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # Check if user is authenticated
             if not self.user or not self.user.is_authenticated:
                 print(f"WebSocket rejected - User not authenticated")
+                await self.send(text_data=json.dumps({
+                    'error': 'Authentication required'
+                }))
                 await self.close(code=4001)
                 return
             
@@ -28,6 +35,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             is_participant = await self.check_participant()
             if not is_participant:
                 print(f"WebSocket rejected - User {self.user.id} not a participant of hangout {self.hangout_id}")
+                await self.send(text_data=json.dumps({
+                    'error': 'You must be a participant of this hangout'
+                }))
                 await self.close(code=4003)
                 return
 
@@ -38,7 +48,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
 
             print(f"WebSocket connected - User {self.user.id} joined hangout {self.hangout_id}")
-            await self.accept()
         except Exception as e:
             print(f"WebSocket connection error: {str(e)}")
             import traceback

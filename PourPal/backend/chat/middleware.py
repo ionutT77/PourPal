@@ -18,16 +18,25 @@ class TokenAuthMiddleware(BaseMiddleware):
     """
     
     async def __call__(self, scope, receive, send):
+        print(f"=== TokenAuthMiddleware called ===")
+        print(f"Scope type: {scope.get('type')}")
+        print(f"Scope path: {scope.get('path')}")
+        print(f"Scope headers: {dict(scope.get('headers', []))}")
+        
         # Get session from scope (populated by SessionMiddlewareStack)
         session = scope.get('session', {})
+        print(f"Session data: {dict(session)}")
         
         # Get user ID from session
         user_id = session.get('_auth_user_id')
+        print(f"User ID from session: {user_id}")
         
         if user_id:
             scope['user'] = await self.get_user(user_id)
+            print(f"User authenticated: {scope['user']}")
         else:
             scope['user'] = AnonymousUser()
+            print(f"No user ID in session, setting AnonymousUser")
         
         return await super().__call__(scope, receive, send)
     
