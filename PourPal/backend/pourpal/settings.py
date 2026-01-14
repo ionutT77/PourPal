@@ -186,33 +186,25 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",  # Django dev server
 ]
 
-# TEMPORARILY allow all origins to fix WebSocket 403 errors
-# Since ALLOWED_HOSTS is *, we need to allow all origins for WebSockets to work
-# TODO: Restrict this after confirming everything works
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = False  # MUST be False when using credentials
 
-# Check if we're in production (DEBUG=False)
-if not DEBUG:
-    # In production, temporarily allow all origins
-    CORS_ALLOW_ALL_ORIGINS = True
-else:
-    # In development, use specific origins
-    CORS_ALLOW_ALL_ORIGINS = False
-    
-    # Add production frontend URL
-    if os.environ.get('FRONTEND_URL'):
-        frontend_url = os.environ.get('FRONTEND_URL').rstrip('/')
-        if frontend_url not in CORS_ALLOWED_ORIGINS:
-            CORS_ALLOWED_ORIGINS.append(frontend_url)
+# Add production origins
+if os.environ.get('FRONTEND_URL'):
+    frontend_url = os.environ.get('FRONTEND_URL').rstrip('/')
+    if frontend_url not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(frontend_url)
 
-    # Add production backend URL for WebSocket
-    if os.environ.get('BACKEND_URL'):
-        backend_url = os.environ.get('BACKEND_URL').rstrip('/')
-        if backend_url not in CORS_ALLOWED_ORIGINS:
-            CORS_ALLOWED_ORIGINS.append(backend_url)
-        backend_wss = backend_url.replace('https://', 'wss://')
-        if backend_wss not in CORS_ALLOWED_ORIGINS:
-            CORS_ALLOWED_ORIGINS.append(backend_wss)
+if os.environ.get('BACKEND_URL'):
+    backend_url = os.environ.get('BACKEND_URL').rstrip('/')
+    # Add https version
+    if backend_url not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(backend_url)
+    # Add wss version for WebSocket
+    backend_wss = backend_url.replace('https://', 'wss://')
+    if backend_wss not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(backend_wss)
+
     
 # Allow all methods for API
 CORS_ALLOW_METHODS = [
