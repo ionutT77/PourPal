@@ -65,6 +65,3 @@ This will generate an optimized build in the `build` directory.
 
 ## Contributing
 Contributions are welcome! Please follow the standard Git workflow for submitting issues and pull requests.
-
-## License
-This project is licensed under the MIT License. See the LICENSE file for details.
